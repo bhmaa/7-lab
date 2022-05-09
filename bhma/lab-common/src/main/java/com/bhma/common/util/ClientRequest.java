@@ -6,11 +6,13 @@ public class ClientRequest implements Serializable {
     private final String commandName;
     private final String commandArguments;
     private final Object objectArgument;
+    private final User user;
 
-    public ClientRequest(String commandName, String commandArguments, Object objectArgument) {
+    public ClientRequest(String commandName, String commandArguments, Object objectArgument, User user) {
         this.commandName = commandName;
         this.commandArguments = commandArguments;
         this.objectArgument = objectArgument;
+        this.user = user;
     }
 
     public String getCommandName() {
@@ -19,6 +21,10 @@ public class ClientRequest implements Serializable {
 
     public String getCommandArguments() {
         return commandArguments;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public Object getObjectArgument() {

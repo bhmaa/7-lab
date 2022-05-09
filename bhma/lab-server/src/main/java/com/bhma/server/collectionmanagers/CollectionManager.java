@@ -1,35 +1,23 @@
-package com.bhma.server.util;
+package com.bhma.server.collectionmanagers;
 
 import com.bhma.common.data.Chapter;
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.data.Weapon;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.IOException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.StringJoiner;
-import java.util.Comparator;
 
-@XmlRootElement(name = "spaceMarines")
-public class CollectionManager {
-    @XmlElement(name = "spaceMarine")
-    private Hashtable<Long, SpaceMarine> collection = new Hashtable<>();
+public abstract class CollectionManager {
+    private final Hashtable<Long, SpaceMarine> collection;
     private final Date dateOfInitialization = new Date();
-    private String filePath;
 
-    public CollectionManager(Hashtable<Long, SpaceMarine> collection, String filePath) {
+    public CollectionManager(Hashtable<Long, SpaceMarine> collection) {
         this.collection = collection;
-        this.filePath = filePath;
     }
 
-    public CollectionManager() {
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public Hashtable<Long, SpaceMarine> getCollection() {
+        return collection;
     }
 
     /**
@@ -41,15 +29,7 @@ public class CollectionManager {
                 + "Collection size: " + collection.size();
     }
 
-    public Hashtable<Long, SpaceMarine> getCollection() {
-        return collection;
-    }
-
-    public void addToCollection(Long key, SpaceMarine spaceMarine) {
-        spaceMarine.setId(getMaxId() + 1);
-        spaceMarine.setCreationDate(new Date());
-        collection.put(key, spaceMarine);
-    }
+    public abstract void addToCollection(Long key, SpaceMarine spaceMarine);
 
     @Override
     public String toString() {
@@ -70,16 +50,7 @@ public class CollectionManager {
         return collection.values().stream().filter(v -> v.getId().equals(id)).findFirst().get();
     }
 
-    public void updateID(Long id, SpaceMarine newInstance) {
-        SpaceMarine oldInstance = getById(id);
-        oldInstance.setName(newInstance.getName());
-        oldInstance.setCoordinates(newInstance.getCoordinates());
-        oldInstance.setHealth(newInstance.getHealth());
-        oldInstance.setCategory(newInstance.getCategory());
-        oldInstance.setWeaponType(newInstance.getWeaponType());
-        oldInstance.setMeleeWeapon(newInstance.getMeleeWeapon());
-        oldInstance.setChapter(newInstance.getChapter());
-    }
+    public abstract void updateID(Long id, SpaceMarine newInstance);
 
     /**
      * @param id checking id
@@ -108,48 +79,30 @@ public class CollectionManager {
     /**
      * @param key key to the element that will be removed from the collection
      */
-    public void remove(Long key) {
-        collection.remove(key);
-    }
+    public abstract void remove(Long key);
 
     /**
      * removes all elements from the collection
      */
-    public void clear() {
-        collection.clear();
-    }
+    public abstract void clear(String username);
 
     /**
      * removes all elements which is greater than param from the collection
      * @param spaceMarine
      */
-    public void removeGreater(SpaceMarine spaceMarine) {
-        collection.entrySet().removeIf(e -> e.getValue().compareTo(spaceMarine) > 0);
-    }
+    public abstract void removeGreater(SpaceMarine spaceMarine, String username);
 
     /**
      * removes all elements which have key that lower than param
      * @param key
      */
-    public void removeLowerKey(Long key) {
-        collection.entrySet().removeIf(e -> e.getKey() < key);
-    }
-
-    /**
-     * convert collection to xml and saves it to the file by filePath
-     */
-    public void save() throws IOException, JAXBException {
-        XMLParser.convertToXML(this, filePath);
-    }
+    public abstract void removeLowerKey(Long key, String username);
 
     /**
      * removes one element whose weapon type is equals to param
      * @param weapon
      */
-    public void removeAnyByWeaponType(Weapon weapon) {
-        collection.entrySet().stream().filter(e -> e.getValue().getWeaponType().equals(weapon))
-                .findFirst().map(e -> collection.remove(e.getKey()));
-    }
+    public abstract void removeAnyByWeaponType(Weapon weapon, String username);
 
     /**
      * @return average value of the health field in collection
@@ -164,16 +117,5 @@ public class CollectionManager {
      */
     public long countByChapter(Chapter chapter) {
         return collection.values().stream().filter(v -> v.getChapter().equals(chapter)).count();
-    }
-
-    /**
-     * @return max id from the collection
-     */
-    public long getMaxId() {
-        if (collection.size() > 0) {
-            return collection.values().stream().max(Comparator.comparing(SpaceMarine::getId)).get().getId();
-        } else {
-            return 0;
-        }
     }
 }

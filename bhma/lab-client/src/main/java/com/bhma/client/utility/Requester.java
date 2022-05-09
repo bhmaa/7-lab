@@ -1,16 +1,15 @@
 package com.bhma.client.utility;
 
 import com.bhma.client.exceptions.NoConnectionException;
-import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.PullingRequest;
 import com.bhma.common.util.PullingResponse;
 import com.bhma.common.util.Serializer;
+import com.bhma.common.util.User;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.HashMap;
 
 public final class Requester {
     private final DatagramChannel client;
@@ -62,8 +61,7 @@ public final class Requester {
         return Serializer.deserialize(bytesReceiving);
     }
 
-    public HashMap<String, CommandRequirement> sendPullingRequest() throws NoConnectionException, IOException, InterruptedException, ClassNotFoundException {
-        PullingResponse response = (PullingResponse) send(new PullingRequest());
-        return response.getRequirements();
+    public PullingResponse sendPullingRequest(User user) throws NoConnectionException, IOException, InterruptedException, ClassNotFoundException {
+        return (PullingResponse) send(new PullingRequest(user));
     }
 }

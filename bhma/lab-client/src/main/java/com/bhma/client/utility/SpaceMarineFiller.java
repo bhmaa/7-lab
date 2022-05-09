@@ -128,8 +128,8 @@ public class SpaceMarineFiller {
      * @return new object with entered values
      * @throws ScriptException if the value was incorrect and input manager read from a file
      */
-    public SpaceMarine fillSpaceMarine() throws ScriptException, InvalidInputException {
+    public SpaceMarine fillSpaceMarine(String ownerUsername) throws ScriptException, InvalidInputException {
         return new SpaceMarine(this.fillName(), this.fillCoordinates(), this.fillHealth(),
-                this.fillCategory(), this.fillWeaponType(), this.fillMeleeWeapon(), this.fillChapter());
+                this.fillCategory(), this.fillWeaponType(), this.fillMeleeWeapon(), this.fillChapter(), ownerUsername);
     }
 }

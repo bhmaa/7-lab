@@ -5,9 +5,6 @@ import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ServerResponse;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-
 /**
  * parent of all commands
  */
@@ -22,8 +19,8 @@ public abstract class Command {
         this.requirement = requirement;
     }
 
-    public abstract ServerResponse execute(String argument, Object object) throws InvalidCommandArguments,
-            IllegalKeyException, IOException, ClassNotFoundException, JAXBException;
+    public abstract ServerResponse execute(String argument, Object object, String username) throws InvalidCommandArguments,
+            IllegalKeyException;
 
     public String getName() {
         return name;

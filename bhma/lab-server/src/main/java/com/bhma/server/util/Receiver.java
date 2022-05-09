@@ -1,17 +1,12 @@
 package com.bhma.server.util;
 
-import com.bhma.common.exceptions.IllegalKeyException;
-import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.ClientRequest;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.PullingRequest;
-import com.bhma.common.util.PullingResponse;
 import com.bhma.common.util.Serializer;
 import com.bhma.common.util.ServerResponse;
-import com.bhma.server.commands.Command;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -19,15 +14,17 @@ import java.net.InetAddress;
 
 public class Receiver {
     private final int bufferSize;
-    private final CommandManager commandManager;
     private final DatagramSocket server;
     private final Logger logger;
+    private final Executor executor;
+    private final UsersHandler usersHandler;
 
-    public Receiver(CommandManager commandManager, DatagramSocket server, int bufferSize, Logger logger) {
-        this.commandManager = commandManager;
+    public Receiver(DatagramSocket server, int bufferSize, Logger logger, Executor executor, UsersHandler usersHandler) {
         this.server = server;
         this.bufferSize = bufferSize;
         this.logger = logger;
+        this.executor = executor;
+        this.usersHandler = usersHandler;
     }
 
     public void receive() throws IOException, ClassNotFoundException {
@@ -40,24 +37,14 @@ public class Receiver {
         logger.info("received request from address " + client + ", port " + port);
         Object response;
         if (received instanceof PullingRequest) {
-            response = new PullingResponse(commandManager.getRequirements());
+            response = usersHandler.handle((PullingRequest) received);
         } else {
             ClientRequest clientRequest = (ClientRequest) received;
-            String inputCommand = clientRequest.getCommandName();
-            String argument = clientRequest.getCommandArguments();
-            Object objectArgument = clientRequest.getObjectArgument();
-            if (commandManager.getCommands().containsKey(inputCommand)) {
-                Command command = commandManager.getCommands().get(inputCommand);
-                try {
-                    response = command.execute(argument, objectArgument);
-                    commandManager.getSaveCommand().execute("", null);
-                } catch (InvalidCommandArguments | IllegalKeyException e) {
-                    response = new ServerResponse(e.getMessage(), ExecuteCode.ERROR);
-                } catch (JAXBException e) {
-                    response = new ServerResponse("Error during converting data to file", ExecuteCode.ERROR);
-                }
+            if (usersHandler.checkUser(clientRequest.getUser())) {
+                response = executor.executeCommand(clientRequest.getCommandName(), clientRequest.getCommandArguments(),
+                        clientRequest.getObjectArgument(), clientRequest.getUser().getUsername());
             } else {
-                response = new ServerResponse("Unknown command detected: " + inputCommand, ExecuteCode.ERROR);
+                response = new ServerResponse("commands can only be executed by authorized users", ExecuteCode.ERROR);
             }
         }
         byte[] bytesSending = Serializer.serialize(response);

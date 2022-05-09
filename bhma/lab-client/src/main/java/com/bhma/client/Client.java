@@ -3,7 +3,6 @@ package com.bhma.client;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
-import java.util.HashMap;
 
 import com.bhma.client.utility.Color;
 import com.bhma.client.utility.ConsoleManager;
@@ -15,7 +14,6 @@ import com.bhma.client.utility.SpaceMarineReader;
 import com.bhma.common.exceptions.IllegalAddressException;
 import com.bhma.client.exceptions.InvalidInputException;
 import com.bhma.client.exceptions.NoConnectionException;
-import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.Checker;
 
 public final class Client {
@@ -39,9 +37,7 @@ public final class Client {
                 client.bind(null).configureBlocking(false);
                 Requester requester = new Requester(client, serverAddress, TIMEOUT, BUFFER_SIZE, RECONNECTION_ATTEMPTS,
                         outputManager);
-                HashMap<String, CommandRequirement> requirements = requester.sendPullingRequest();
-                ConsoleManager consoleManager = new ConsoleManager(requirements, inputManager, outputManager,
-                        spaceMarineFiller, requester);
+                ConsoleManager consoleManager = new ConsoleManager(inputManager, outputManager, spaceMarineFiller, requester);
                 consoleManager.start();
             } catch (InvalidInputException | NoConnectionException | IllegalAddressException e) {
                 outputManager.printlnImportantColorMessage(e.getMessage(), Color.RED);

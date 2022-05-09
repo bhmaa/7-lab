@@ -1,5 +1,6 @@
 package com.bhma.server.util;
 
+import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.server.commands.AverageOfHealthCommand;
 import com.bhma.server.commands.ClearCommand;
@@ -15,7 +16,6 @@ import com.bhma.server.commands.RemoveGreaterKeyCommand;
 import com.bhma.server.commands.RemoveKeyCommand;
 import com.bhma.server.commands.RemoveLowerKeyCommand;
 import com.bhma.server.commands.ReplaceIfLowerCommand;
-import com.bhma.server.commands.SaveCommand;
 import com.bhma.server.commands.ShowCommand;
 import com.bhma.server.commands.UpdateCommand;
 import java.util.HashMap;
@@ -27,7 +27,6 @@ import java.util.HashMap;
 public class CommandManager {
     private final HashMap<String, Command> commands = new HashMap<>();
     private final HashMap<String, CommandRequirement> requirements = new HashMap<>();
-    private final SaveCommand saveCommand;
 
     public CommandManager(CollectionManager collectionManager) {
         AverageOfHealthCommand averageOfHealthCommand = new AverageOfHealthCommand(collectionManager);
@@ -36,7 +35,7 @@ public class CommandManager {
         commands.put(clearCommand.getName(), clearCommand);
         CountByChapterCommand countByChapterCommand = new CountByChapterCommand(collectionManager);
         commands.put(countByChapterCommand.getName(), countByChapterCommand);
-        ExitCommand exitCommand = new ExitCommand(collectionManager);
+        ExitCommand exitCommand = new ExitCommand();
         commands.put(exitCommand.getName(), exitCommand);
         InfoCommand infoCommand = new InfoCommand(collectionManager);
         commands.put(infoCommand.getName(), infoCommand);
@@ -62,7 +61,6 @@ public class CommandManager {
         commands.put(helpCommand.getName(), helpCommand);
 
         commands.forEach((k, v) -> requirements.put(k, v.getRequirement()));
-        saveCommand = new SaveCommand(collectionManager);
     }
 
     public HashMap<String, Command> getCommands() {
@@ -71,9 +69,5 @@ public class CommandManager {
 
     public HashMap<String, CommandRequirement> getRequirements() {
         return requirements;
-    }
-
-    public SaveCommand getSaveCommand() {
-        return saveCommand;
     }
 }

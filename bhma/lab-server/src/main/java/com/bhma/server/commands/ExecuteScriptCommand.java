@@ -4,7 +4,6 @@ import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
-import java.io.IOException;
 
 /**
  * execute_script command
@@ -20,7 +19,7 @@ public class ExecuteScriptCommand extends Command {
      * @param argument mustn't be empty
      * @throws InvalidCommandArguments if argument is empty
      */
-    public ServerResponse execute(String argument, Object object) throws InvalidCommandArguments, IOException {
+    public ServerResponse execute(String argument, Object object, String username) throws InvalidCommandArguments {
         if (argument.isEmpty() || object != null) {
             throw new InvalidCommandArguments();
         }

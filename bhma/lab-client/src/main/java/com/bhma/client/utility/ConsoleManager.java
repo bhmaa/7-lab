@@ -6,22 +6,26 @@ import com.bhma.client.exceptions.ScriptException;
 import com.bhma.common.util.ClientRequest;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
+import com.bhma.common.util.PasswordEncoder;
+import com.bhma.common.util.PullingResponse;
+import com.bhma.common.util.RegistrationCode;
 import com.bhma.common.util.ServerResponse;
+import com.bhma.common.util.User;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 
 public class ConsoleManager {
-    private final HashMap<String, CommandRequirement> commands;
     private final InputManager inputManager;
     private final OutputManager outputManager;
     private final SpaceMarineFiller spaceMarineFiller;
     private final Requester requester;
+    private HashMap<String, CommandRequirement> commands;
+    private User user;
 
-    public ConsoleManager(HashMap<String, CommandRequirement> commands, InputManager inputManager,
-                          OutputManager outputManager, SpaceMarineFiller spaceMarineFiller, Requester requester) {
-        this.commands = commands;
+    public ConsoleManager(InputManager inputManager, OutputManager outputManager, SpaceMarineFiller spaceMarineFiller,
+                          Requester requester) {
         this.inputManager = inputManager;
         this.outputManager = outputManager;
         this.spaceMarineFiller = spaceMarineFiller;
@@ -32,6 +36,7 @@ public class ConsoleManager {
      * starts read commands and execute it while it is not an exit command
      */
     public void start() throws IOException, ClassNotFoundException, InvalidInputException, NoConnectionException, InterruptedException {
+        authorize();
         boolean executeFlag = true;
         while (executeFlag) {
             String input = inputManager.read();
@@ -42,7 +47,7 @@ public class ConsoleManager {
                     argument = input.replaceFirst(inputCommand + " ", "");
                 }
                 try {
-                    ClientRequest request = new ClientRequest(inputCommand, argument, getObjectArgument(inputCommand));
+                    ClientRequest request = new ClientRequest(inputCommand, argument, getObjectArgument(inputCommand), user);
                     ServerResponse response = (ServerResponse) requester.send(request);
                     executeFlag = processServerResponse(response);
                 } catch (ScriptException e) {
@@ -56,7 +61,7 @@ public class ConsoleManager {
         }
     }
 
-    public Object getObjectArgument(String commandName) throws ScriptException, InvalidInputException {
+    private Object getObjectArgument(String commandName) throws ScriptException, InvalidInputException {
         Object object = null;
         if (commands.containsKey(commandName)) {
             CommandRequirement requirement = commands.get(commandName);
@@ -65,7 +70,7 @@ public class ConsoleManager {
                     object = spaceMarineFiller.fillChapter();
                     break;
                 case SPACE_MARINE:
-                    object = spaceMarineFiller.fillSpaceMarine();
+                    object = spaceMarineFiller.fillSpaceMarine(user.getUsername());
                     break;
                 case WEAPON:
                     object = spaceMarineFiller.fillWeaponType();
@@ -82,7 +87,7 @@ public class ConsoleManager {
      * @param serverResponse received response
      * @return false if it was exit command, true otherwise
      */
-    public boolean processServerResponse(ServerResponse serverResponse) {
+    private boolean processServerResponse(ServerResponse serverResponse) {
         ExecuteCode executeCode = serverResponse.getExecuteCode();
         switch (executeCode) {
             case ERROR:
@@ -107,5 +112,25 @@ public class ConsoleManager {
                 outputManager.printlnImportantColorMessage("incorrect server's response...", Color.RED);
         }
         return true;
+    }
+
+    private void authorize() throws InvalidInputException, NoConnectionException, IOException, InterruptedException,
+            ClassNotFoundException {
+        boolean isAuthorized = false;
+        do {
+            outputManager.printlnImportantMessage("enter username:");
+            String username = inputManager.read();
+            outputManager.printlnImportantMessage("enter password:");
+            String password = PasswordEncoder.encode(inputManager.read());
+            User newUser = new User(username, password);
+            PullingResponse response = requester.sendPullingRequest(newUser);
+            if (response.getRegistrationCode() == RegistrationCode.AUTHORIZED
+                    || response.getRegistrationCode() == RegistrationCode.REGISTERED) {
+                isAuthorized = true;
+                commands = response.getRequirements();
+                this.user = user;
+            }
+            outputManager.printlnImportantMessage(response.getRegistrationCode().getMessage());
+        } while (!isAuthorized);
     }
 }

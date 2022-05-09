@@ -5,7 +5,7 @@ import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
-import com.bhma.server.util.CollectionManager;
+import com.bhma.server.collectionmanagers.CollectionManager;
 
 /**
  * count_by_chapter command
@@ -23,7 +23,7 @@ public class CountByChapterCommand extends Command {
      * @param argument must be empty
      * @throws InvalidCommandArguments if argument isn't empty
      */
-    public ServerResponse execute(String argument, Object chapter) throws InvalidCommandArguments {
+    public ServerResponse execute(String argument, Object chapter, String username) throws InvalidCommandArguments {
         if (!argument.isEmpty() || chapter == null || chapter.getClass() != Chapter.class) {
             throw new InvalidCommandArguments();
         }

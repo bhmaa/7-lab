@@ -4,8 +4,7 @@ import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
-import com.bhma.server.util.CollectionManager;
-import java.io.IOException;
+import com.bhma.server.collectionmanagers.CollectionManager;
 
 /**
  * remove_lower_key command
@@ -25,12 +24,12 @@ public class RemoveLowerKeyCommand extends Command {
      * @throws InvalidCommandArguments if argument is empty
      * @throws NumberFormatException if argument isn't a number
      */
-    public ServerResponse execute(String argument, Object object) throws InvalidCommandArguments, NumberFormatException,
-            IOException {
+    public ServerResponse execute(String argument, Object object, String username) throws InvalidCommandArguments,
+            NumberFormatException {
         if (argument.isEmpty() || object != null) {
             throw new InvalidCommandArguments();
         }
-        collectionManager.removeLowerKey(Long.valueOf(argument));
+        collectionManager.removeLowerKey(Long.valueOf(argument), username);
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

@@ -22,19 +22,21 @@ public class SpaceMarine implements Comparable<SpaceMarine>, Serializable {
     private Weapon weaponType;
     private MeleeWeapon meleeWeapon;
     private Chapter chapter;
+    private String ownerUsername;
     /**
      * builds new object and generate id and current date as date of creation
-     *
-     * @param name              name of the space marine (cannot be null)
+     *  @param name              name of the space marine (cannot be null)
      * @param coordinates       coordinates of the space marine
      * @param health            health of the space marine (can be null or must be greater than 0)
      * @param category          astartes category of the space marine (cannot be null)
      * @param weaponType        weapon type of the space marine (cannot be null)
      * @param meleeWeapon       melee weapon type of the space marine (can be null)
      * @param chapter           chapter of the space marine
+     * @param ownerUsername
      */
+    @SuppressWarnings("parameternumber")
     public SpaceMarine(String name, Coordinates coordinates, double health, AstartesCategory category,
-                       Weapon weaponType, MeleeWeapon meleeWeapon, Chapter chapter) {
+                       Weapon weaponType, MeleeWeapon meleeWeapon, Chapter chapter, String ownerUsername) {
         this.name = name;
         this.coordinates = coordinates;
         this.health = health;
@@ -42,10 +44,16 @@ public class SpaceMarine implements Comparable<SpaceMarine>, Serializable {
         this.weaponType = weaponType;
         this.meleeWeapon = meleeWeapon;
         this.chapter = chapter;
+        this.ownerUsername = ownerUsername;
     }
 
     public SpaceMarine() {
     }
+
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
 
     @XmlElement
     public Long getId() {

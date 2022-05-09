@@ -6,8 +6,7 @@ import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
-import com.bhma.server.util.CollectionManager;
-import java.io.IOException;
+import com.bhma.server.collectionmanagers.CollectionManager;
 
 /**
  * replace_if_lowe command
@@ -28,13 +27,16 @@ public class ReplaceIfLowerCommand extends Command {
      * @throws NumberFormatException if argument isn't a number
      * @throws IllegalKeyException if there's no element with entered key in collection
      */
-    public ServerResponse execute(String argument, Object spaceMarine) throws InvalidCommandArguments,
-            NumberFormatException, IllegalKeyException, IOException, ClassNotFoundException {
+    public ServerResponse execute(String argument, Object spaceMarine, String username) throws InvalidCommandArguments,
+            NumberFormatException, IllegalKeyException {
         if (argument.isEmpty() || spaceMarine == null || spaceMarine.getClass() != SpaceMarine.class) {
             throw new InvalidCommandArguments();
         }
         if (!collectionManager.containsKey(Long.valueOf(argument))) {
             throw new IllegalKeyException("There's no element with that key");
+        }
+        if (!collectionManager.getByKey(Long.valueOf(argument)).getOwnerUsername().equals(username)) {
+            throw new IllegalKeyException("Object with that key belong to the another user");
         }
         SpaceMarine oldSpaceMarine = collectionManager.getByKey(Long.valueOf(argument));
         if (oldSpaceMarine.compareTo((SpaceMarine) spaceMarine) < 0) {
