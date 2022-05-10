@@ -1,5 +1,6 @@
-package com.bhma.server.usersmanagers;
+package com.bhma.server.usersmanagers.tablecreators;
 
+import com.bhma.server.usersmanagers.XMLUserManager;
 import org.apache.logging.log4j.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

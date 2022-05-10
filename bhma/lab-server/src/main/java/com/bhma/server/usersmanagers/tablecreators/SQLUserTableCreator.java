@@ -1,4 +1,4 @@
-package com.bhma.server.usersmanagers;
+package com.bhma.server.usersmanagers.tablecreators;
 
 import com.bhma.common.util.User;
 import org.apache.logging.log4j.Logger;

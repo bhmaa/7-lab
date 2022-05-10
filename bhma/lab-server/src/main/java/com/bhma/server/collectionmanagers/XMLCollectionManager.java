@@ -2,7 +2,7 @@ package com.bhma.server.collectionmanagers;
 
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.data.Weapon;
-import com.bhma.server.util.XMLManager;
+import com.bhma.server.collectionmanagers.collectioncreators.XMLDataManager;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlElement;
@@ -70,7 +70,7 @@ public class XMLCollectionManager extends CollectionManager implements SavableCo
      * convert collection to xml and saves it to the file by filePath
      */
     public void save() throws IOException, JAXBException {
-        XMLManager.convertToXML(this, filePath);
+        XMLDataManager.convertToXML(this, filePath);
     }
 
     public void removeAnyByWeaponType(Weapon weapon, String username) {

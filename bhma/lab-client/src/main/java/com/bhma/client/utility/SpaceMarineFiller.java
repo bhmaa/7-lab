@@ -9,6 +9,8 @@ import com.bhma.common.data.Weapon;
 import com.bhma.client.exceptions.InvalidInputException;
 import com.bhma.client.exceptions.ScriptException;
 
+import java.util.Date;
+
 /**
  * responsible for the selection correct values of SpaceMarine fields
  */
@@ -129,7 +131,9 @@ public class SpaceMarineFiller {
      * @throws ScriptException if the value was incorrect and input manager read from a file
      */
     public SpaceMarine fillSpaceMarine(String ownerUsername) throws ScriptException, InvalidInputException {
-        return new SpaceMarine(this.fillName(), this.fillCoordinates(), this.fillHealth(),
+        SpaceMarine spaceMarine = new SpaceMarine(this.fillName(), this.fillCoordinates(), this.fillHealth(),
                 this.fillCategory(), this.fillWeaponType(), this.fillMeleeWeapon(), this.fillChapter(), ownerUsername);
+        spaceMarine.setCreationDate(new Date());
+        return spaceMarine;
     }
 }

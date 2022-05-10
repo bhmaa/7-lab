@@ -1,4 +1,4 @@
-package com.bhma.server.util;
+package com.bhma.server.collectionmanagers.collectioncreators;
 
 import com.bhma.server.collectionmanagers.XMLCollectionManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +17,8 @@ import java.util.Hashtable;
  * responsible for converting xml files to the collection manager instance and converting collection manager instance
  * to the xml file
  */
-public final class XMLManager {
-    private XMLManager() {
+public final class XMLDataManager {
+    private XMLDataManager() {
     }
 
     /**
@@ -42,7 +42,7 @@ public final class XMLManager {
      * @return collection manager instance
      * @throws JAXBException if xml-file cannot be converted to java object
      */
-    public static XMLCollectionManager convertToJavaObject(File fileName) throws JAXBException {
+    private static XMLCollectionManager convertToJavaObject(File fileName) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(XMLCollectionManager.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         return (XMLCollectionManager) unmarshaller.unmarshal(fileName);

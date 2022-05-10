@@ -13,11 +13,11 @@ import java.sql.SQLException;
 import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.server.collectionmanagers.SQLCollectionManager;
 import com.bhma.server.usersmanagers.SQLUserManager;
-import com.bhma.server.usersmanagers.SQLUserTableCreator;
+import com.bhma.server.usersmanagers.tablecreators.SQLUserTableCreator;
 import com.bhma.server.util.CommandManager;
 import com.bhma.server.util.Executor;
 import com.bhma.server.util.Receiver;
-import com.bhma.server.util.SQLManager;
+import com.bhma.server.collectionmanagers.collectioncreators.SQLDataManager;
 import com.bhma.server.util.UsersHandler;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -53,11 +53,10 @@ public final class Server {
                 try (Connection connection = DriverManager.getConnection(dataBaseUrl, dataBaseUsername, dataBasePassword)) {
                     LOGGER.info("connected to the database");
                     DatagramSocket server = new DatagramSocket(address);
-                    SQLManager sqlManager = new SQLManager(connection);
+                    SQLDataManager sqlDataManager = new SQLDataManager(connection, DATA_TABLE_NAME, USER_TABLE_NAME, LOGGER);
                     SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
                     SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
-                    sqlManager.createTable();
-                    CollectionManager collectionManager = new SQLCollectionManager(sqlManager.initCollection(), sqlManager);
+                    CollectionManager collectionManager = new SQLCollectionManager(sqlDataManager.initCollection(), sqlDataManager);
                     CommandManager commandManager = new CommandManager(collectionManager);
                     Executor executor = new Executor(commandManager);
                     UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
