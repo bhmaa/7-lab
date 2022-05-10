@@ -84,6 +84,7 @@ public class ConsoleManager {
 
     /**
      * process the ExecuteCode of ServerResponse. print messages and finish read script if there's an error
+     *
      * @param serverResponse received response
      * @return false if it was exit command, true otherwise
      */
@@ -128,7 +129,7 @@ public class ConsoleManager {
                     || response.getRegistrationCode() == RegistrationCode.REGISTERED) {
                 isAuthorized = true;
                 commands = response.getRequirements();
-                this.user = user;
+                this.user = newUser;
             }
             outputManager.printlnImportantMessage(response.getRegistrationCode().getMessage());
         } while (!isAuthorized);

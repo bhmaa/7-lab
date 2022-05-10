@@ -6,25 +6,26 @@ import com.bhma.common.util.PullingResponse;
 import com.bhma.common.util.RegistrationCode;
 import com.bhma.common.util.User;
 
+import com.bhma.server.usersmanagers.SQLUserManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 
 public class UsersHandler {
-    private final SQLManager sqlManager;
+    private final SQLUserManager sqlUserManager;
     private final HashMap<String, CommandRequirement> commands;
     private final Logger logger;
 
-    public UsersHandler(SQLManager sqlManager, HashMap<String, CommandRequirement> commands, Logger logger) {
-        this.sqlManager = sqlManager;
+    public UsersHandler(SQLUserManager sqlUserManager, HashMap<String, CommandRequirement> commands, Logger logger) {
+        this.sqlUserManager = sqlUserManager;
         this.commands = commands;
         this.logger = logger;
     }
 
     public PullingResponse handle(PullingRequest request) {
         User newUser = request.getUser();
-        if (sqlManager.isUsernameExist(newUser.getUsername())) {
-            if (sqlManager.checkPassword(newUser)) {
+        if (sqlUserManager.isUsernameExists(newUser.getUsername())) {
+            if (sqlUserManager.checkPassword(newUser)) {
                 logger.info(() -> "user " + newUser.getUsername() + " authorized");
                 return new PullingResponse(commands, RegistrationCode.AUTHORIZED);
             } else {
@@ -32,13 +33,16 @@ public class UsersHandler {
                 return new PullingResponse(RegistrationCode.DENIED);
             }
         } else {
-            sqlManager.registerUser(newUser);
+            sqlUserManager.registerUser(newUser);
             logger.info(() -> "user " + newUser.getUsername() + " registered");
             return new PullingResponse(commands, RegistrationCode.REGISTERED);
         }
     }
 
     public boolean checkUser(User user) {
-        return sqlManager.isUsernameExist(user.getUsername()) && sqlManager.checkPassword(user);
+        if (!sqlUserManager.isUsernameExists(user.getUsername())) {
+            return false;
+        }
+        return sqlUserManager.checkPassword(user);
     }
 }

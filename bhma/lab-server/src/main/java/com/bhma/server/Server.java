@@ -12,6 +12,8 @@ import java.sql.SQLException;
 
 import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.server.collectionmanagers.SQLCollectionManager;
+import com.bhma.server.usersmanagers.SQLUserManager;
+import com.bhma.server.usersmanagers.SQLUserTableCreator;
 import com.bhma.server.util.CommandManager;
 import com.bhma.server.util.Executor;
 import com.bhma.server.util.Receiver;
@@ -31,6 +33,8 @@ public final class Server {
     private static final int INDEX_DB_NAME = 4;
     private static final int INDEX_DB_USERNAME = 5;
     private static final int INDEX_DB_PASSWORD = 6;
+    private static final String USER_TABLE_NAME = "spacemarinesusers";
+    private static final String DATA_TABLE_NAME = "space_marines";
 
     private Server() {
         throw new UnsupportedOperationException("This is an utility class and can not be instantiated");
@@ -50,12 +54,13 @@ public final class Server {
                     LOGGER.info("connected to the database");
                     DatagramSocket server = new DatagramSocket(address);
                     SQLManager sqlManager = new SQLManager(connection);
-                    sqlManager.createUserTable();
+                    SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
+                    SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
                     sqlManager.createTable();
                     CollectionManager collectionManager = new SQLCollectionManager(sqlManager.initCollection(), sqlManager);
                     CommandManager commandManager = new CommandManager(collectionManager);
                     Executor executor = new Executor(commandManager);
-                    UsersHandler usersHandler = new UsersHandler(sqlManager, commandManager.getRequirements(), LOGGER);
+                    UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
                     Receiver receiver = new Receiver(server, BUFFER_SIZE, LOGGER, executor, usersHandler);
                     while (true) {
                         receiver.receive();

@@ -6,7 +6,6 @@ import com.bhma.common.data.Coordinates;
 import com.bhma.common.data.MeleeWeapon;
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.data.Weapon;
-import com.bhma.common.util.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,80 +17,23 @@ import java.util.Hashtable;
 
 public class SQLManager {
     private final Connection connection;
-    private final String spaceMarinesTableName = "\"space_marines\"";
-    private final String usersTableName = "\"space_marines_users\"";
+    private final String spaceMarinesTableName = "space_marines";
+    private final String usersTableName = "spacemarinesusers";
 
     public SQLManager(Connection connection) {
         this.connection = connection;
     }
 
-    public void createUserTable() {
-        try {
-            Statement statement = connection.createStatement();
-            statement.executeQuery("CREATE TABLE IF NOT EXIST " + usersTableName + " (username VARCHAR(100) NOT NULL UNIQUE,"
-                    + " password VARCHAR(100) NOT NULL)");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void registerUser(User user) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO " + usersTableName + " VALUES (?, ?)");
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getHashPassword());
-            statement.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean isUsernameExist(String username) {
-        boolean answer = false;
-        try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + usersTableName + " WHERE username = ?");
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                answer = true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return answer;
-    }
-
-    public boolean checkPassword(User user) {
-        boolean answer = false;
-        try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + usersTableName + " WHERE username = ?, password = ?");
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getHashPassword());
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                answer = true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return answer;
-    }
-
-    // id, key, name, x, y, health, astartes_category, weapon, melee_weapon, chapter_name, chapter_world, creation_date
+    // id, key, name, x, y, health, astartes_category, weapon, melee_weapon, chapter_name, chapter_world, creation_date, owner
     public void createTable() {
         try {
             Statement statement = connection.createStatement();
-            statement.executeQuery("CREATE TYPE IF NOT EXIST asrartescategory AS ENUM ("
-                    + "'SCOUT', 'INCEPTOR', 'TACTICAL', 'CHAPLAIN')");
-            statement.executeQuery("CREATE TYPE IF NOT EXIST weapon AS ENUM ("
-                    + "'HEAVY_BOLTGUN', 'BOLT_RIFLE', 'PLASMA_GUN', 'INFERNO_PISTOL')");
-            statement.executeQuery("CREATE TYPE IF NOT EXIST meleeweapon AS ENUM ("
-                    + "'CHAIN_AXE', 'MANREAPER', 'LIGHTING_CLAW', 'POWER_BLADE', 'POWER_FIST')");
-            statement.executeQuery("CREATE TABLE IF NOT EXIST " + spaceMarinesTableName
-                    + "(id SERIAL PRIMARY KEY, key LONG UNIQUE NOT NULL, name VARCHAR(50) NOT NULL, x DOUBLE NOT NULL CHECK(x>-685),"
-                    + "y LONG NOT NULL, health DOUBLE NOT NULL CHECK(health>0), astartes_category asrartescategory NOT NULL,"
-                    + "weapon weapon NOT NULL, melee_weapon meleeweapon, chapter_name VARCHAR(50) NOT NULL,"
-                    + "chapter_world varchar(50), creation_date TIMESTAMP NOT NULL, owner VARCHAR(100) NOT NULL REFERENCES users(username))");
+            statement.execute("CREATE TABLE IF NOT EXISTS " + spaceMarinesTableName
+                    + "(id SERIAL PRIMARY KEY, key BIGINT NOT NULL, name VARCHAR(50) NOT NULL, x DOUBLE precision NOT NULL CHECK(x>-685),"
+                    + "y BIGINT NOT NULL, health DOUBLE precision NOT NULL CHECK(health>0), astartes_category VARCHAR(100) NOT NULL,"
+                    + "weapon VARCHAR(100) NOT NULL, melee_weapon VARCHAR(100), chapter_name VARCHAR(50) NOT NULL,"
+                    + "chapter_world varchar(50), creation_date TIMESTAMP NOT NULL, owner VARCHAR(100) NOT NULL,"
+                    + "FOREIGN KEY(owner) REFERENCES " + usersTableName + "(username))");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -107,14 +49,16 @@ public class SQLManager {
         return spaceMarines;
     }
 
+    // null can be only meleeweapon chapterworld
     private SpaceMarine getSpaceMarineFromTable(ResultSet result) throws SQLException {
         SpaceMarine spaceMarine = new SpaceMarine(result.getString("name"),
                 new Coordinates(result.getDouble("x"), result.getLong("y")),
                 result.getDouble("health"),
-                (AstartesCategory) result.getObject("astartes_category"),
-                (Weapon) result.getObject("weapon"),
-                (MeleeWeapon) result.getObject("melee_weapon"),
-                new Chapter(result.getString("chapter_name"), result.getString("chapter_world")),
+                AstartesCategory.valueOf(result.getString("astartes_category")),
+                Weapon.valueOf(result.getString("weapon")),
+                result.getString("melee_weapon") != null ? MeleeWeapon.valueOf(result.getString("melee_weapon")) : null,
+                new Chapter(result.getString("chapter_name"),
+                        result.getString("chapter_world") != null ? result.getString("chapter_world") : null),
                 result.getString("owner"));
         spaceMarine.setId(result.getLong("id"));
         spaceMarine.setCreationDate(result.getTimestamp("creation_date"));
@@ -147,7 +91,7 @@ public class SQLManager {
         long id;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + spaceMarinesTableName + " VALUES ("
-                    + "default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? RETURNING id");
+                    + "default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? RETURNING id");
             prepareStatement(preparedStatement, spaceMarine, key);
             ResultSet result = preparedStatement.executeQuery();
             result.next();
@@ -178,12 +122,13 @@ public class SQLManager {
         statement.setDouble(++i, spaceMarine.getCoordinates().getX());
         statement.setLong(++i, spaceMarine.getCoordinates().getY());
         statement.setDouble(++i, spaceMarine.getHealth());
-        statement.setObject(++i, spaceMarine.getCategory());
-        statement.setObject(++i, spaceMarine.getWeaponType());
-        statement.setObject(++i, spaceMarine.getMeleeWeapon());
+        statement.setString(++i, String.valueOf(spaceMarine.getCategory()));
+        statement.setString(++i, String.valueOf(spaceMarine.getWeaponType()));
+        statement.setString(++i, String.valueOf(spaceMarine.getMeleeWeapon()));
         statement.setString(++i, spaceMarine.getChapter().getName());
         statement.setString(++i, spaceMarine.getChapter().getWorld());
         statement.setTimestamp(++i, new Timestamp(spaceMarine.getCreationDate().getTime()));
+        statement.setString(++i, spaceMarine.getOwnerUsername());
     }
 
     public boolean clear(String username) {
