@@ -146,6 +146,7 @@ public class SpaceMarine implements Comparable<SpaceMarine>, Serializable {
                 + ", weaponType=" + weaponType
                 + ", meleeWeapon=" + meleeWeapon
                 + ", chapter=" + chapter
+                + ", owner=" + ownerUsername
                 + '}';
     }
 

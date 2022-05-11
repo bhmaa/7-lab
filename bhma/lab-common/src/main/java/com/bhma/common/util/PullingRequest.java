@@ -3,19 +3,25 @@ package com.bhma.common.util;
 import java.io.Serializable;
 
 public class PullingRequest implements Serializable {
-    private final String commandName = "pull commands";
-    private final User user;
+    private final String username;
+    private final String password;
 
-    public PullingRequest(User user) {
-        this.user = user;
+    public PullingRequest(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
-    public User getUser() {
-        return user;
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     @Override
     public String toString() {
+        String commandName = "pull commands";
         return "PullingRequest{"
                 + " commandName='" + commandName + '\''
                 + '}';

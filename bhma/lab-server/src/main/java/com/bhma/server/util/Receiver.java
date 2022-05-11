@@ -40,9 +40,10 @@ public class Receiver {
             response = usersHandler.handle((PullingRequest) received);
         } else {
             ClientRequest clientRequest = (ClientRequest) received;
-            if (usersHandler.checkUser(clientRequest.getUser())) {
+            User user = new User(clientRequest.getUsername(), PasswordEncoder.encode(clientRequest.getPassword()));
+            if (usersHandler.checkUser(user)) {
                 response = executor.executeCommand(clientRequest.getCommandName(), clientRequest.getCommandArguments(),
-                        clientRequest.getObjectArgument(), clientRequest.getUser().getUsername());
+                        clientRequest.getObjectArgument(), user.getUsername());
             } else {
                 response = new ServerResponse("commands can only be executed by authorized users", ExecuteCode.ERROR);
             }

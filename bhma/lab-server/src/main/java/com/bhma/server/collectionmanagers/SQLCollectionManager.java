@@ -2,8 +2,9 @@ package com.bhma.server.collectionmanagers;
 
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.data.Weapon;
-import com.bhma.server.collectionmanagers.collectioncreators.SQLDataManager;
+import com.bhma.server.collectionmanagers.datamanagers.SQLDataManager;
 
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class SQLCollectionManager extends CollectionManager {
 
     @Override
     public void addToCollection(Long key, SpaceMarine spaceMarine) {
+        spaceMarine.setCreationDate(new Date());
         Long id = sqlDataManager.add(key, spaceMarine);
         if (id != null) {
             spaceMarine.setId(id);

@@ -1,6 +1,6 @@
 package com.bhma.server.usersmanagers.tablecreators;
 
-import com.bhma.common.util.User;
+import com.bhma.server.util.User;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
@@ -21,27 +21,19 @@ public class SQLUserTableCreator {
         this.logger = logger;
     }
 
-    private void createUserTable() {
-        try {
-            Statement statement = connection.createStatement();
-            statement.execute("CREATE TABLE IF NOT EXISTS " + usersTableName + " (username VARCHAR(100) NOT NULL"
-                    + " PRIMARY KEY, password VARCHAR(100) NOT NULL)");
-        } catch (SQLException e) {
-            logger.error(e);
-        }
+    private void createUserTable() throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute("CREATE TABLE IF NOT EXISTS " + usersTableName + " (username VARCHAR(100) NOT NULL"
+                + " PRIMARY KEY, password VARCHAR(100) NOT NULL)");
     }
 
-    public List<User> init() {
+    public List<User> init() throws SQLException {
         createUserTable();
         List<User> sqlUsers = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM " + usersTableName);
-            while (result.next()) {
-                sqlUsers.add(new User(result.getString("username"), result.getString("password")));
-            }
-        } catch (SQLException e) {
-            logger.error(e);
+        Statement statement = connection.createStatement();
+        ResultSet result = statement.executeQuery("SELECT * FROM " + usersTableName);
+        while (result.next()) {
+            sqlUsers.add(new User(result.getString("username"), result.getString("password")));
         }
         logger.info(() -> "added data of " + sqlUsers.size() + " users from the database");
         return sqlUsers;

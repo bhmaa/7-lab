@@ -1,4 +1,4 @@
-package com.bhma.server.collectionmanagers.collectioncreators;
+package com.bhma.server.collectionmanagers.datamanagers;
 
 import com.bhma.server.collectionmanagers.XMLCollectionManager;
 import org.apache.logging.log4j.Logger;

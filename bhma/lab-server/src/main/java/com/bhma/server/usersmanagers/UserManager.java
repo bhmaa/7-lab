@@ -1,6 +1,6 @@
 package com.bhma.server.usersmanagers;
 
-import com.bhma.common.util.User;
+import com.bhma.server.util.User;
 import java.util.List;
 
 public abstract class UserManager {

@@ -17,7 +17,7 @@ import com.bhma.server.usersmanagers.tablecreators.SQLUserTableCreator;
 import com.bhma.server.util.CommandManager;
 import com.bhma.server.util.Executor;
 import com.bhma.server.util.Receiver;
-import com.bhma.server.collectionmanagers.collectioncreators.SQLDataManager;
+import com.bhma.server.collectionmanagers.datamanagers.SQLDataManager;
 import com.bhma.server.util.UsersHandler;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +34,7 @@ public final class Server {
     private static final int INDEX_DB_USERNAME = 5;
     private static final int INDEX_DB_PASSWORD = 6;
     private static final String USER_TABLE_NAME = "spacemarinesusers";
-    private static final String DATA_TABLE_NAME = "space_marines";
+    private static final String DATA_TABLE_NAME = "spacemarines";
 
     private Server() {
         throw new UnsupportedOperationException("This is an utility class and can not be instantiated");
@@ -57,7 +57,7 @@ public final class Server {
                     SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
                     SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
                     CollectionManager collectionManager = new SQLCollectionManager(sqlDataManager.initCollection(), sqlDataManager);
-                    CommandManager commandManager = new CommandManager(collectionManager);
+                    CommandManager commandManager = new CommandManager(collectionManager, LOGGER);
                     Executor executor = new Executor(commandManager);
                     UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
                     Receiver receiver = new Receiver(server, BUFFER_SIZE, LOGGER, executor, usersHandler);

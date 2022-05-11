@@ -4,7 +4,6 @@ import com.bhma.client.exceptions.NoConnectionException;
 import com.bhma.common.util.PullingRequest;
 import com.bhma.common.util.PullingResponse;
 import com.bhma.common.util.Serializer;
-import com.bhma.common.util.User;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -61,7 +60,8 @@ public final class Requester {
         return Serializer.deserialize(bytesReceiving);
     }
 
-    public PullingResponse sendPullingRequest(User user) throws NoConnectionException, IOException, InterruptedException, ClassNotFoundException {
-        return (PullingResponse) send(new PullingRequest(user));
+    public PullingResponse sendPullingRequest(String username, String password) throws NoConnectionException, IOException,
+            InterruptedException, ClassNotFoundException {
+        return (PullingResponse) send(new PullingRequest(username, password));
     }
 }

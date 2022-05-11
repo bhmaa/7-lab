@@ -1,6 +1,6 @@
 package com.bhma.server.usersmanagers;
 
-import com.bhma.common.util.User;
+import com.bhma.server.util.User;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

@@ -4,7 +4,6 @@ import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.PullingRequest;
 import com.bhma.common.util.PullingResponse;
 import com.bhma.common.util.RegistrationCode;
-import com.bhma.common.util.User;
 
 import com.bhma.server.usersmanagers.SQLUserManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +22,7 @@ public class UsersHandler {
     }
 
     public PullingResponse handle(PullingRequest request) {
-        User newUser = request.getUser();
+        User newUser = new User(request.getUsername(), PasswordEncoder.encode(request.getPassword()));
         if (sqlUserManager.isUsernameExists(newUser.getUsername())) {
             if (sqlUserManager.checkPassword(newUser)) {
                 logger.info(() -> "user " + newUser.getUsername() + " authorized");

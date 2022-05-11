@@ -1,4 +1,4 @@
-package com.bhma.common.util;
+package com.bhma.server.util;
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;

@@ -2,7 +2,7 @@ package com.bhma.server.collectionmanagers;
 
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.data.Weapon;
-import com.bhma.server.collectionmanagers.collectioncreators.XMLDataManager;
+import com.bhma.server.collectionmanagers.datamanagers.XMLDataManager;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlElement;

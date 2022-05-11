@@ -18,6 +18,8 @@ import com.bhma.server.commands.RemoveLowerKeyCommand;
 import com.bhma.server.commands.ReplaceIfLowerCommand;
 import com.bhma.server.commands.ShowCommand;
 import com.bhma.server.commands.UpdateCommand;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashMap;
 
 /**
@@ -28,14 +30,14 @@ public class CommandManager {
     private final HashMap<String, Command> commands = new HashMap<>();
     private final HashMap<String, CommandRequirement> requirements = new HashMap<>();
 
-    public CommandManager(CollectionManager collectionManager) {
+    public CommandManager(CollectionManager collectionManager, Logger logger) {
         AverageOfHealthCommand averageOfHealthCommand = new AverageOfHealthCommand(collectionManager);
         commands.put(averageOfHealthCommand.getName(), averageOfHealthCommand);
         ClearCommand clearCommand = new ClearCommand(collectionManager);
         commands.put(clearCommand.getName(), clearCommand);
         CountByChapterCommand countByChapterCommand = new CountByChapterCommand(collectionManager);
         commands.put(countByChapterCommand.getName(), countByChapterCommand);
-        ExitCommand exitCommand = new ExitCommand();
+        ExitCommand exitCommand = new ExitCommand(logger);
         commands.put(exitCommand.getName(), exitCommand);
         InfoCommand infoCommand = new InfoCommand(collectionManager);
         commands.put(infoCommand.getName(), infoCommand);

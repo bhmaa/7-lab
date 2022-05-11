@@ -4,17 +4,22 @@ import com.bhma.common.exceptions.InvalidCommandArguments;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
+import org.apache.logging.log4j.Logger;
 
 /**
  * exit command
  */
 public class ExitCommand extends Command {
-    public ExitCommand() {
+    private final Logger logger;
+
+    public ExitCommand(Logger logger) {
         super("exit", "завершить программу (без сохранения в файл)", CommandRequirement.NONE);
+        this.logger = logger;
     }
 
     /**
      * sets execute flag to false
+     *
      * @param argument must be empty
      * @throws InvalidCommandArguments if argument isn't empty
      */
@@ -22,6 +27,7 @@ public class ExitCommand extends Command {
         if (!argument.isEmpty() || object != null) {
             throw new InvalidCommandArguments();
         }
+        logger.info(() -> "user " + username + " logged out");
         return new ServerResponse(ExecuteCode.EXIT);
     }
 }

@@ -6,11 +6,9 @@ import com.bhma.client.exceptions.ScriptException;
 import com.bhma.common.util.ClientRequest;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
-import com.bhma.common.util.PasswordEncoder;
 import com.bhma.common.util.PullingResponse;
 import com.bhma.common.util.RegistrationCode;
 import com.bhma.common.util.ServerResponse;
-import com.bhma.common.util.User;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,7 +20,8 @@ public class ConsoleManager {
     private final SpaceMarineFiller spaceMarineFiller;
     private final Requester requester;
     private HashMap<String, CommandRequirement> commands;
-    private User user;
+    private String username;
+    private String password;
 
     public ConsoleManager(InputManager inputManager, OutputManager outputManager, SpaceMarineFiller spaceMarineFiller,
                           Requester requester) {
@@ -47,7 +46,8 @@ public class ConsoleManager {
                     argument = input.replaceFirst(inputCommand + " ", "");
                 }
                 try {
-                    ClientRequest request = new ClientRequest(inputCommand, argument, getObjectArgument(inputCommand), user);
+                    ClientRequest request = new ClientRequest(inputCommand, argument, getObjectArgument(inputCommand),
+                            username, password);
                     ServerResponse response = (ServerResponse) requester.send(request);
                     executeFlag = processServerResponse(response);
                 } catch (ScriptException e) {
@@ -70,7 +70,7 @@ public class ConsoleManager {
                     object = spaceMarineFiller.fillChapter();
                     break;
                 case SPACE_MARINE:
-                    object = spaceMarineFiller.fillSpaceMarine(user.getUsername());
+                    object = spaceMarineFiller.fillSpaceMarine(username);
                     break;
                 case WEAPON:
                     object = spaceMarineFiller.fillWeaponType();
@@ -119,17 +119,17 @@ public class ConsoleManager {
             ClassNotFoundException {
         boolean isAuthorized = false;
         do {
-            outputManager.printlnImportantMessage("enter username:");
-            String username = inputManager.read();
-            outputManager.printlnImportantMessage("enter password:");
-            String password = PasswordEncoder.encode(inputManager.read());
-            User newUser = new User(username, password);
-            PullingResponse response = requester.sendPullingRequest(newUser);
+            outputManager.print("enter username:");
+            String newUsername = inputManager.read();
+            outputManager.print("enter password:");
+            String newPassword = inputManager.read();
+            PullingResponse response = requester.sendPullingRequest(newUsername, newPassword);
             if (response.getRegistrationCode() == RegistrationCode.AUTHORIZED
                     || response.getRegistrationCode() == RegistrationCode.REGISTERED) {
                 isAuthorized = true;
                 commands = response.getRequirements();
-                this.user = newUser;
+                username = newUsername;
+                password = newPassword;
             }
             outputManager.printlnImportantMessage(response.getRegistrationCode().getMessage());
         } while (!isAuthorized);

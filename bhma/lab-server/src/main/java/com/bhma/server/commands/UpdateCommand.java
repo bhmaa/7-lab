@@ -37,7 +37,7 @@ public class UpdateCommand extends Command {
         if (!collectionManager.containsId(id)) {
             throw new IllegalKeyException("There's no value with that id.");
         }
-        if (!collectionManager.getByKey(Long.valueOf(argument)).getOwnerUsername().equals(username)) {
+        if (!collectionManager.getById(id).getOwnerUsername().equals(username)) {
             throw new IllegalKeyException("Object with that key belong to the another user");
         }
         collectionManager.updateID(id, (SpaceMarine) spaceMarine);

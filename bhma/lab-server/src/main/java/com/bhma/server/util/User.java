@@ -1,4 +1,4 @@
-package com.bhma.common.util;
+package com.bhma.server.util;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,11 +10,11 @@ import java.util.Objects;
 @XmlType(propOrder = {"username", "hashPassword"})
 public class User implements Serializable {
     private final String username;
-    private final String hashPassword;
+    private final String password;
 
-    public User(String username, String hashPassword) {
+    public User(String username, String password) {
         this.username = username;
-        this.hashPassword = hashPassword;
+        this.password = password;
     }
 
     @XmlElement
@@ -23,8 +23,8 @@ public class User implements Serializable {
     }
 
     @XmlElement
-    public String getHashPassword() {
-        return hashPassword;
+    public String getPassword() {
+        return password;
     }
 
     @Override
@@ -36,11 +36,11 @@ public class User implements Serializable {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(username, user.username) && Objects.equals(hashPassword, user.hashPassword);
+        return Objects.equals(username, user.username) && Objects.equals(password, user.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, hashPassword);
+        return Objects.hash(username, password);
     }
 }
