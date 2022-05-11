@@ -22,7 +22,8 @@ public class Receiver {
     private final Executor executor;
     private final UsersHandler usersHandler;
 
-    public Receiver(DatagramSocket server, int bufferSize, Logger logger, Executor executor, UsersHandler usersHandler) {
+    public Receiver(DatagramSocket server, int bufferSize, Logger logger, Executor executor,
+                    UsersHandler usersHandler) {
         this.server = server;
         this.bufferSize = bufferSize;
         this.logger = logger;
@@ -33,12 +34,12 @@ public class Receiver {
     public void start(ExecutorService requestReadingPool, ExecutorService requestProcessingPool,
                       ExecutorService responseSendingPool) throws ExecutionException, InterruptedException {
         while (true) {
-            Future<ReceivedData> receivedData = requestReadingPool.submit(this::receive);
-            Object request = receivedData.get().getData();
-            InetAddress client = receivedData.get().getClient();
-            int port = receivedData.get().getPort();
-            Future<Object> responseData = requestProcessingPool.submit(() -> processRequest(request));
-            Object response = responseData.get();
+            Future<ReceivedData> receivedDataFuture = requestReadingPool.submit(this::receive);
+            Object request = receivedDataFuture.get().getData();
+            InetAddress client = receivedDataFuture.get().getClient();
+            int port = receivedDataFuture.get().getPort();
+            Future<Object> responseFuture = requestProcessingPool.submit(() -> processRequest(request));
+            Object response = responseFuture.get();
             Future<Boolean> isDone = responseSendingPool.submit(() -> sendResponse(response, client, port));
             isDone.get();
         }
