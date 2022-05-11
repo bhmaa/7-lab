@@ -11,7 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * responsible for converting xml files to the collection manager instance and converting collection manager instance
@@ -55,7 +55,7 @@ public final class XMLDataManager {
             collectionManager = convertToJavaObject(file);
             collectionManager.setFilePath(filePath);
         } else {
-            collectionManager = new XMLCollectionManager(new Hashtable<>(), filePath);
+            collectionManager = new XMLCollectionManager(new ConcurrentHashMap<>(), filePath);
         }
         if (file.exists()) {
             logger.info("The collection was successfully loaded from the file " + filePath);

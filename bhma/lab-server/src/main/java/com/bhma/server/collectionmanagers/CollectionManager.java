@@ -5,18 +5,18 @@ import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.data.Weapon;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CollectionManager {
-    private final Hashtable<Long, SpaceMarine> collection;
+    private final ConcurrentHashMap<Long, SpaceMarine> collection;
     private final Date dateOfInitialization = new Date();
 
-    public CollectionManager(Hashtable<Long, SpaceMarine> collection) {
+    public CollectionManager(ConcurrentHashMap<Long, SpaceMarine> collection) {
         this.collection = collection;
     }
 
-    public Hashtable<Long, SpaceMarine> getCollection() {
+    public ConcurrentHashMap<Long, SpaceMarine> getCollection() {
         return collection;
     }
 

@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLDataManager {
     private static final int NAME_INDEX = 1;
@@ -62,9 +62,9 @@ public class SQLDataManager {
                 + "FOREIGN KEY(owner) REFERENCES " + usersTableName + "(username))");
     }
 
-    public Hashtable<Long, SpaceMarine> initCollection() throws SQLException {
+    public ConcurrentHashMap<Long, SpaceMarine> initCollection() throws SQLException {
         createDataTable();
-        Hashtable<Long, SpaceMarine> spaceMarines = new Hashtable<>();
+        ConcurrentHashMap<Long, SpaceMarine> spaceMarines = new ConcurrentHashMap<>();
         Statement statement = connection.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM " + spaceMarinesTableName);
         while (result.next()) {

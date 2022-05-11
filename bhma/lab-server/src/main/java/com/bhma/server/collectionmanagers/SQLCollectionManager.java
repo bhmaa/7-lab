@@ -5,16 +5,16 @@ import com.bhma.common.data.Weapon;
 import com.bhma.server.collectionmanagers.datamanagers.SQLDataManager;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class SQLCollectionManager extends CollectionManager {
-    private final Hashtable<Long, SpaceMarine> collection;
+    private final ConcurrentHashMap<Long, SpaceMarine> collection;
     private final SQLDataManager sqlDataManager;
 
-    public SQLCollectionManager(Hashtable<Long, SpaceMarine> collection, SQLDataManager sqlDataManager) {
+    public SQLCollectionManager(ConcurrentHashMap<Long, SpaceMarine> collection, SQLDataManager sqlDataManager) {
         super(collection);
         this.collection = collection;
         this.sqlDataManager = sqlDataManager;

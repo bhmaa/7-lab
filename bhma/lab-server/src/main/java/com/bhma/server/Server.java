@@ -9,6 +9,9 @@ import java.net.InetSocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.server.collectionmanagers.SQLCollectionManager;
@@ -35,6 +38,9 @@ public final class Server {
     private static final int INDEX_DB_PASSWORD = 6;
     private static final String USER_TABLE_NAME = "spacemarinesusers";
     private static final String DATA_TABLE_NAME = "spacemarines";
+    private static final ExecutorService REQUEST_READING_POOL = Executors.newFixedThreadPool(1);
+    private static final ExecutorService REQUEST_PROCESSING_POOL = Executors.newCachedThreadPool();
+    private static final ExecutorService RESPONSE_SENDING_POOL = Executors.newCachedThreadPool();
 
     private Server() {
         throw new UnsupportedOperationException("This is an utility class and can not be instantiated");
@@ -50,9 +56,10 @@ public final class Server {
                         + "/" + args[INDEX_DB_NAME];
                 final String dataBaseUsername = args[INDEX_DB_USERNAME];
                 final String dataBasePassword = args[INDEX_DB_PASSWORD];
-                try (Connection connection = DriverManager.getConnection(dataBaseUrl, dataBaseUsername, dataBasePassword)) {
-                    LOGGER.info("connected to the database");
-                    DatagramSocket server = new DatagramSocket(address);
+                try (Connection connection = DriverManager.getConnection(dataBaseUrl, dataBaseUsername, dataBasePassword);
+                     DatagramSocket server = new DatagramSocket(address)) {
+                    LOGGER.info(() -> "connected to the database " + dataBaseUrl);
+                    LOGGER.info("opened datagram socket");
                     SQLDataManager sqlDataManager = new SQLDataManager(connection, DATA_TABLE_NAME, USER_TABLE_NAME, LOGGER);
                     SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
                     SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
@@ -61,16 +68,16 @@ public final class Server {
                     Executor executor = new Executor(commandManager);
                     UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
                     Receiver receiver = new Receiver(server, BUFFER_SIZE, LOGGER, executor, usersHandler);
-                    while (true) {
-                        receiver.receive();
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOGGER.error("wrong data from client");
-                } catch (IOException | SQLException e) {
+                    receiver.start(REQUEST_READING_POOL, REQUEST_PROCESSING_POOL, RESPONSE_SENDING_POOL);
+                } catch (IOException | SQLException | ExecutionException | InterruptedException e) {
                     LOGGER.error(e);
                 }
             } catch (IllegalAddressException e) {
                 LOGGER.error(e.getMessage());
+            } finally {
+                REQUEST_READING_POOL.shutdown();
+                REQUEST_PROCESSING_POOL.shutdown();
+                RESPONSE_SENDING_POOL.shutdown();
             }
         } else {
             LOGGER.error("command line arguments must indicate host name, port, database host name, port and name, username and password");

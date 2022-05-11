@@ -10,22 +10,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 @XmlRootElement(name = "spaceMarines")
 public class XMLCollectionManager extends CollectionManager implements SavableCollectionManager {
     @XmlElement(name = "spaceMarine")
-    private Hashtable<Long, SpaceMarine> collection = new Hashtable<>();
+    private ConcurrentHashMap<Long, SpaceMarine> collection = new ConcurrentHashMap<>();
     private String filePath;
 
-    public XMLCollectionManager(Hashtable<Long, SpaceMarine> collection, String filePath) {
+    public XMLCollectionManager(ConcurrentHashMap<Long, SpaceMarine> collection, String filePath) {
         super(collection);
         this.collection = collection;
         this.filePath = filePath;
     }
 
     public XMLCollectionManager() {
-        super(new Hashtable<>());
+        super(new ConcurrentHashMap<>());
     }
 
     public void setFilePath(String filePath) {

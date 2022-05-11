@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class Receiver {
     private final int bufferSize;
@@ -27,30 +30,61 @@ public class Receiver {
         this.usersHandler = usersHandler;
     }
 
-    public void receive() throws IOException, ClassNotFoundException {
-        byte[] bytesReceiving = new byte[bufferSize];
-        DatagramPacket request = new DatagramPacket(bytesReceiving, bytesReceiving.length);
-        server.receive(request);
-        Object received = Serializer.deserialize(bytesReceiving);
-        InetAddress client = request.getAddress();
-        int port = request.getPort();
-        logger.info("received request from address " + client + ", port " + port);
-        Object response;
+    public void start(ExecutorService requestReadingPool, ExecutorService requestProcessingPool,
+                      ExecutorService responseSendingPool) throws ExecutionException, InterruptedException {
+        while (true) {
+            Future<ReceivedData> receivedData = requestReadingPool.submit(this::receive);
+            Object request = receivedData.get().getData();
+            InetAddress client = receivedData.get().getClient();
+            int port = receivedData.get().getPort();
+            Future<Object> responseData = requestProcessingPool.submit(() -> processRequest(request));
+            Object response = responseData.get();
+            Future<Boolean> isDone = responseSendingPool.submit(() -> sendResponse(response, client, port));
+            isDone.get();
+        }
+    }
+
+    private Object processRequest(Object received) {
         if (received instanceof PullingRequest) {
-            response = usersHandler.handle((PullingRequest) received);
+            return usersHandler.handle((PullingRequest) received);
         } else {
             ClientRequest clientRequest = (ClientRequest) received;
             User user = new User(clientRequest.getUsername(), PasswordEncoder.encode(clientRequest.getPassword()));
             if (usersHandler.checkUser(user)) {
-                response = executor.executeCommand(clientRequest.getCommandName(), clientRequest.getCommandArguments(),
+                return executor.executeCommand(clientRequest.getCommandName(), clientRequest.getCommandArguments(),
                         clientRequest.getObjectArgument(), user.getUsername());
             } else {
-                response = new ServerResponse("commands can only be executed by authorized users", ExecuteCode.ERROR);
+                return new ServerResponse("commands can only be executed by authorized users", ExecuteCode.ERROR);
             }
         }
-        byte[] bytesSending = Serializer.serialize(response);
-        DatagramPacket packet = new DatagramPacket(bytesSending, bytesSending.length, client, port);
-        server.send(packet);
-        logger.info("response sent to the address " + client + ", port " + port);
+    }
+
+    private boolean sendResponse(Object response, InetAddress client, int port) {
+        try {
+            byte[] bytesSending = Serializer.serialize(response);
+            DatagramPacket packet = new DatagramPacket(bytesSending, bytesSending.length, client, port);
+            server.send(packet);
+            logger.info("response sent to the address " + client + ", port " + port);
+        } catch (IOException e) {
+            logger.error("error during sending response", e);
+        }
+        return true;
+    }
+
+    private ReceivedData receive() {
+        ReceivedData receivedData = null;
+        try {
+            byte[] bytesReceiving = new byte[bufferSize];
+            DatagramPacket request = new DatagramPacket(bytesReceiving, bytesReceiving.length);
+            server.receive(request);
+            Object received = Serializer.deserialize(bytesReceiving);
+            InetAddress client = request.getAddress();
+            int port = request.getPort();
+            receivedData = new ReceivedData(received, client, port);
+            logger.info(() -> "received request from address " + client + ", port " + port);
+        } catch (IOException | ClassNotFoundException e) {
+            logger.error("error during reading response", e);
+        }
+        return receivedData;
     }
 }
