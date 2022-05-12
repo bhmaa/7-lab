@@ -13,7 +13,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class Receiver {
     private final int bufferSize;
