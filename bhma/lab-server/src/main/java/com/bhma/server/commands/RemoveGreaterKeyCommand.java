@@ -25,7 +25,10 @@ public class RemoveGreaterKeyCommand extends Command {
         if (!argument.isEmpty() || spaceMarine == null || spaceMarine.getClass() != SpaceMarine.class) {
             throw new InvalidCommandArguments();
         }
-        collectionManager.removeGreater((SpaceMarine) spaceMarine, username);
+        long undeletedItems = collectionManager.removeGreater((SpaceMarine) spaceMarine, username);
+        if (undeletedItems != 0) {
+            return new ServerResponse(undeletedItems + " objects were not deleted", ExecuteCode.SERVER_ERROR);
+        }
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

@@ -29,7 +29,10 @@ public class RemoveLowerKeyCommand extends Command {
         if (argument.isEmpty() || object != null) {
             throw new InvalidCommandArguments();
         }
-        collectionManager.removeLowerKey(Long.valueOf(argument), username);
+        long undeletedItems = collectionManager.removeLowerKey(Long.parseLong(argument), username);
+        if (undeletedItems != 0) {
+            return new ServerResponse(undeletedItems + " objects were not deleted", ExecuteCode.SERVER_ERROR);
+        }
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

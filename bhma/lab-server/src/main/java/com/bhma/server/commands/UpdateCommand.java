@@ -33,14 +33,16 @@ public class UpdateCommand extends Command {
         if (argument.isEmpty() || spaceMarine == null || spaceMarine.getClass() != SpaceMarine.class) {
             throw new InvalidCommandArguments();
         }
-        Long id = Long.valueOf(argument);
+        long id = Long.parseLong(argument);
         if (!collectionManager.containsId(id)) {
             throw new IllegalKeyException("There's no value with that id.");
         }
         if (!collectionManager.getById(id).getOwnerUsername().equals(username)) {
             throw new IllegalKeyException("Object with that key belong to the another user");
         }
-        collectionManager.updateID(id, (SpaceMarine) spaceMarine);
+        if (!collectionManager.updateID(id, (SpaceMarine) spaceMarine)) {
+            return new ServerResponse("Cannot update element", ExecuteCode.SERVER_ERROR);
+        }
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

@@ -7,7 +7,8 @@ public enum ExecuteCode implements Serializable {
     ERROR("The command was NOT completed!"),
     VALUE("Server response:"),
     EXIT("Disconnecting with server..."),
-    READ_SCRIPT("Start reading script...");
+    READ_SCRIPT("Start reading script..."),
+    SERVER_ERROR("The command could not be executed on the server");
 
     private final String message;
 

@@ -32,7 +32,7 @@ public class InsertCommand extends Command {
             throw new InvalidCommandArguments();
         }
         if (collectionManager.getCollection().containsKey(Long.valueOf(argument))) {
-            throw new IllegalKeyException("Element with this key is already exist");
+            throw new IllegalKeyException("Element with this key is already exists");
         }
         collectionManager.addToCollection(Long.valueOf(argument), (SpaceMarine) spaceMarine);
         return new ServerResponse(ExecuteCode.SUCCESS);

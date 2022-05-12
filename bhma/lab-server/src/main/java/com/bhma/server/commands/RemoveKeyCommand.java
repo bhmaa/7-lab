@@ -30,13 +30,16 @@ public class RemoveKeyCommand extends Command {
         if (argument.isEmpty() || object != null) {
             throw new InvalidCommandArguments();
         }
-        if (!collectionManager.containsKey(Long.valueOf(argument))) {
-            throw new IllegalKeyException("There's no value with that key.");
+        long key = Long.parseLong(argument);
+        if (!collectionManager.containsKey(key)) {
+            throw new IllegalKeyException("There's no object with that key.");
         }
-        if (!collectionManager.getByKey(Long.valueOf(argument)).getOwnerUsername().equals(username)) {
+        if (!collectionManager.getByKey(key).getOwnerUsername().equals(username)) {
             throw new IllegalKeyException("Object with that key belong to the another user");
         }
-        collectionManager.remove(Long.valueOf(argument));
+        if (!collectionManager.remove(key)) {
+            return new ServerResponse("Cannot remove object", ExecuteCode.SERVER_ERROR);
+        }
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

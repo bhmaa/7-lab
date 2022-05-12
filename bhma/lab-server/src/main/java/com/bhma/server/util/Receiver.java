@@ -33,12 +33,26 @@ public class Receiver {
     public void start(ExecutorService requestReadingPool, ExecutorService requestProcessingPool,
                       ExecutorService responseSendingPool) throws ExecutionException, InterruptedException {
         while (true) {
-            ReceivedData receivedData = requestReadingPool.submit(this::receive).get();
-            Object request = receivedData.getRequest();
-            InetAddress client = receivedData.getClient();
-            int port = receivedData.getPort();
-            Object response = requestProcessingPool.submit(() -> processRequest(request)).get();
-            responseSendingPool.submit(() -> sendResponse(response, client, port)).get();
+            requestReadingPool.submit(() -> {
+                ReceivedData receivedData = receive();
+                Object request = receivedData.getRequest();
+                InetAddress client = receivedData.getClient();
+                int port = receivedData.getPort();
+                try {
+                    requestProcessingPool.submit(() -> {
+                        Object response = processRequest(request);
+                        try {
+                            responseSendingPool.submit(() -> sendResponse(response, client, port)).get();
+                            responseSendingPool.shutdown();
+                        } catch (InterruptedException | ExecutionException e) {
+                            logger.error(e);
+                        }
+                    }).get();
+                    requestProcessingPool.shutdown();
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.error(e);
+                }
+            });
         }
     }
 

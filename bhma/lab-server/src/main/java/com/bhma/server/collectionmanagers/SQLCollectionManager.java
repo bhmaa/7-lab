@@ -7,7 +7,9 @@ import com.bhma.server.collectionmanagers.datamanagers.SQLDataManager;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class SQLCollectionManager extends CollectionManager {
@@ -31,64 +33,83 @@ public class SQLCollectionManager extends CollectionManager {
     }
 
     @Override
-    public void updateID(Long id, SpaceMarine newInstance) {
+    public boolean updateID(long id, SpaceMarine newInstance) {
         SpaceMarine oldInstance = getById(id);
-        if (oldInstance.getOwnerUsername().equals(newInstance.getOwnerUsername())) {
-            if (sqlDataManager.update(id, newInstance)) {
-                oldInstance.setName(newInstance.getName());
-                oldInstance.setCoordinates(newInstance.getCoordinates());
-                oldInstance.setHealth(newInstance.getHealth());
-                oldInstance.setCategory(newInstance.getCategory());
-                oldInstance.setWeaponType(newInstance.getWeaponType());
-                oldInstance.setMeleeWeapon(newInstance.getMeleeWeapon());
-                oldInstance.setChapter(newInstance.getChapter());
-            }
+        if (!oldInstance.getOwnerUsername().equals(newInstance.getOwnerUsername())) {
+            return false;
         }
+        if (!sqlDataManager.update(id, newInstance)) {
+            return false;
+        }
+        oldInstance.setName(newInstance.getName());
+        oldInstance.setCoordinates(newInstance.getCoordinates());
+        oldInstance.setHealth(newInstance.getHealth());
+        oldInstance.setCategory(newInstance.getCategory());
+        oldInstance.setWeaponType(newInstance.getWeaponType());
+        oldInstance.setMeleeWeapon(newInstance.getMeleeWeapon());
+        oldInstance.setChapter(newInstance.getChapter());
+        return true;
     }
 
     @Override
-    public void remove(Long key) {
-        if (sqlDataManager.removeByKey(key)) {
-            collection.remove(key);
+    public boolean remove(long key) {
+        if (!sqlDataManager.removeByKey(key)) {
+            return false;
         }
+        collection.remove(key);
+        return true;
     }
 
     @Override
-    public void clear(String username) {
-        if (sqlDataManager.deleteAllOwned(username)) {
-            collection.entrySet().removeIf(e -> e.getValue().getOwnerUsername().equals(username));
+    public boolean clear(String username) {
+        if (!sqlDataManager.deleteAllOwned(username)) {
+            return false;
         }
+        collection.entrySet().removeIf(e -> e.getValue().getOwnerUsername().equals(username));
+        return true;
     }
 
     @Override
-    public void removeGreater(SpaceMarine spaceMarine, String username) {
-        List<Long> ids = collection.values().stream().filter(e -> e.compareTo(spaceMarine) > 0
-                        && e.getOwnerUsername().equals(username)).map(SpaceMarine::getId).collect(Collectors.toList());
-        ids.forEach(id -> {
-            if (sqlDataManager.removeById(id)) {
-                collection.remove(getById(id));
+    public long removeGreater(SpaceMarine spaceMarine, String username) {
+        AtomicLong undeletedItems = new AtomicLong();
+        List<Long> keys = collection.entrySet().stream().filter(e -> e.getValue().compareTo(spaceMarine) > 0
+                && e.getValue().getOwnerUsername().equals(username)).map(Map.Entry::getKey).collect(Collectors.toList());
+        keys.forEach(k -> {
+            if (sqlDataManager.removeByKey(k)) {
+                collection.remove(k);
+            } else {
+                undeletedItems.getAndIncrement();
             }
         });
+        return undeletedItems.get();
     }
 
     @Override
-    public void removeLowerKey(Long key, String username) {
+    public long removeLowerKey(long key, String username) {
+        AtomicLong undeletedItems = new AtomicLong();
         List<Long> keys = collection.entrySet().stream().filter(e -> e.getKey() < key
                 && e.getValue().getOwnerUsername().equals(username)).map(Map.Entry::getKey).collect(Collectors.toList());
         keys.forEach(k -> {
             if (sqlDataManager.removeByKey(k)) {
                 collection.remove(k);
+            } else {
+                undeletedItems.getAndIncrement();
             }
         });
+        return undeletedItems.get();
     }
 
     @Override
-    public void removeAnyByWeaponType(Weapon weapon, String username) {
-        collection.entrySet().stream().filter(e -> e.getValue().getWeaponType().equals(weapon)
-                && e.getValue().getOwnerUsername().equals(username)).limit(1).forEach(e -> {
-            if (sqlDataManager.removeByKey(e.getKey())) {
-                collection.remove(e.getKey());
-            }
-        });
+    public boolean removeAnyByWeaponType(Weapon weapon, String username) {
+        Optional<Map.Entry<Long, SpaceMarine>> item = collection.entrySet().stream().filter(e -> e.getValue().
+                getWeaponType().equals(weapon) && e.getValue().getOwnerUsername().equals(username)).findFirst();
+        if (!item.isPresent()) {
+            return false;
+        }
+        if (!sqlDataManager.removeByKey(item.get().getKey())) {
+            return false;
+        }
+        collection.remove(item.get().getKey());
+        return true;
     }
 }

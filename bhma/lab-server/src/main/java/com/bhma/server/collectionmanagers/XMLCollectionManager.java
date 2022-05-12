@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @XmlRootElement(name = "spaceMarines")
@@ -38,8 +40,11 @@ public class XMLCollectionManager extends CollectionManager implements SavableCo
         collection.put(key, spaceMarine);
     }
 
-    public void updateID(Long id, SpaceMarine newInstance) {
+    public boolean updateID(long id, SpaceMarine newInstance) {
         SpaceMarine oldInstance = getById(id);
+        if (!oldInstance.getOwnerUsername().equals(newInstance.getOwnerUsername())) {
+            return false;
+        }
         oldInstance.setName(newInstance.getName());
         oldInstance.setCoordinates(newInstance.getCoordinates());
         oldInstance.setHealth(newInstance.getHealth());
@@ -47,23 +52,31 @@ public class XMLCollectionManager extends CollectionManager implements SavableCo
         oldInstance.setWeaponType(newInstance.getWeaponType());
         oldInstance.setMeleeWeapon(newInstance.getMeleeWeapon());
         oldInstance.setChapter(newInstance.getChapter());
+        return true;
     }
 
-    public void remove(Long key) {
+    public boolean remove(long key) {
+        if (!collection.containsKey(key)) {
+            return false;
+        }
         collection.remove(key);
+        return true;
     }
 
-    public void clear(String username) {
+    public boolean clear(String username) {
         collection.entrySet().removeIf(e -> e.getValue().getOwnerUsername().equals(username));
+        return true;
     }
 
-    public void removeGreater(SpaceMarine spaceMarine, String username) {
+    public long removeGreater(SpaceMarine spaceMarine, String username) {
         collection.entrySet().removeIf(e -> e.getValue().compareTo(spaceMarine) > 0
                 && e.getValue().getOwnerUsername().equals(username));
+        return 0;
     }
 
-    public void removeLowerKey(Long key, String username) {
+    public long removeLowerKey(long key, String username) {
         collection.entrySet().removeIf(e -> e.getKey() < key && e.getValue().getOwnerUsername().equals(username));
+        return 0;
     }
 
     /**
@@ -73,10 +86,14 @@ public class XMLCollectionManager extends CollectionManager implements SavableCo
         XMLDataManager.convertToXML(this, filePath);
     }
 
-    public void removeAnyByWeaponType(Weapon weapon, String username) {
-        collection.entrySet().stream().filter(e -> e.getValue().getWeaponType().equals(weapon)
-                && e.getValue().getOwnerUsername().equals(username))
-                .findFirst().map(e -> collection.remove(e.getKey()));
+    public boolean removeAnyByWeaponType(Weapon weapon, String username) {
+        Optional<Map.Entry<Long, SpaceMarine>> item = collection.entrySet().stream().filter(e -> e.getValue().
+                getWeaponType().equals(weapon) && e.getValue().getOwnerUsername().equals(username)).findFirst();
+        if (!item.isPresent()) {
+            return false;
+        }
+        collection.remove(item.get().getKey());
+        return true;
     }
 
     /**

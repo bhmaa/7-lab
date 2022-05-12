@@ -26,7 +26,9 @@ public class ClearCommand extends Command {
         if (!argument.isEmpty() || object != null) {
             throw new InvalidCommandArguments();
         }
-        collectionManager.clear(username);
+        if (!collectionManager.clear(username)) {
+            return new ServerResponse("Cannot delete objects", ExecuteCode.SERVER_ERROR);
+        }
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

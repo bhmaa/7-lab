@@ -106,6 +106,9 @@ public class ConsoleManager {
             case READ_SCRIPT:
                 inputManager.startReadScript(serverResponse.getMessage());
                 break;
+            case SERVER_ERROR:
+                outputManager.printlnImportantColorMessage(executeCode.getMessage(), Color.RED);
+                break;
             case EXIT:
                 outputManager.printlnImportantColorMessage(executeCode.getMessage(), Color.RED);
                 return false;

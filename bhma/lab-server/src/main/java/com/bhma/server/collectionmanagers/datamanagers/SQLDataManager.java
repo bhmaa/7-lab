@@ -89,19 +89,6 @@ public class SQLDataManager {
         return spaceMarine;
     }
 
-    public boolean removeById(long id) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM "
-                    + spaceMarinesTableName + " WHERE id=?");
-            preparedStatement.setLong(1, id);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            logger.warn("error during removing object from table", e);
-            return false;
-        }
-        return true;
-    }
-
     public boolean removeByKey(long key) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM "

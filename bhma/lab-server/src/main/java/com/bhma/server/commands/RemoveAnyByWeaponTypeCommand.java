@@ -28,7 +28,9 @@ public class RemoveAnyByWeaponTypeCommand extends Command {
         if (!argument.isEmpty() || weapon == null || weapon.getClass() != Weapon.class) {
             throw new InvalidCommandArguments();
         }
-        collectionManager.removeAnyByWeaponType((Weapon) weapon, username);
+        if (!collectionManager.removeAnyByWeaponType((Weapon) weapon, username)) {
+            return new ServerResponse("No element with that weapon type or cannot delete it", ExecuteCode.SERVER_ERROR);
+        }
         return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

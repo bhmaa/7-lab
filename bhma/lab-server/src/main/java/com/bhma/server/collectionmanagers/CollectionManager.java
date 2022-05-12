@@ -46,17 +46,17 @@ public abstract class CollectionManager {
      * @param id id of a space-marine instance
      * @return space-marine instance whose id is equal to the entered one
      */
-    public SpaceMarine getById(Long id) {
+    public SpaceMarine getById(long id) {
         return collection.values().stream().filter(v -> v.getId().equals(id)).findFirst().get();
     }
 
-    public abstract void updateID(Long id, SpaceMarine newInstance);
+    public abstract boolean updateID(long id, SpaceMarine newInstance);
 
     /**
      * @param id checking id
      * @return true if the collection has an element with that id, and false otherwise
      */
-    public boolean containsId(Long id) {
+    public boolean containsId(long id) {
         return collection.values().stream().anyMatch(v -> v.getId().equals(id));
     }
 
@@ -64,7 +64,7 @@ public abstract class CollectionManager {
      * @param key checking key
      * @return true if the collection has a key which is equal to the checking one, and false otherwise
      */
-    public boolean containsKey(Long key) {
+    public boolean containsKey(long key) {
         return collection.containsKey(key);
     }
 
@@ -72,37 +72,37 @@ public abstract class CollectionManager {
      * @param key
      * @return an element in collection which is the value for the entered key
      */
-    public SpaceMarine getByKey(Long key) {
+    public SpaceMarine getByKey(long key) {
         return collection.get(key);
     }
 
     /**
      * @param key key to the element that will be removed from the collection
      */
-    public abstract void remove(Long key);
+    public abstract boolean remove(long key);
 
     /**
      * removes all elements from the collection
      */
-    public abstract void clear(String username);
+    public abstract boolean clear(String username);
 
     /**
      * removes all elements which is greater than param from the collection
      * @param spaceMarine
      */
-    public abstract void removeGreater(SpaceMarine spaceMarine, String username);
+    public abstract long removeGreater(SpaceMarine spaceMarine, String username);
 
     /**
      * removes all elements which have key that lower than param
      * @param key
      */
-    public abstract void removeLowerKey(Long key, String username);
+    public abstract long removeLowerKey(long key, String username);
 
     /**
      * removes one element whose weapon type is equals to param
      * @param weapon
      */
-    public abstract void removeAnyByWeaponType(Weapon weapon, String username);
+    public abstract boolean removeAnyByWeaponType(Weapon weapon, String username);
 
     /**
      * @return average value of the health field in collection
