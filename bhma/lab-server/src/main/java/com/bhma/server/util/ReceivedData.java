@@ -3,18 +3,18 @@ package com.bhma.server.util;
 import java.net.InetAddress;
 
 public class ReceivedData {
-    private final Object data;
+    private final Object request;
     private final InetAddress client;
     private final int port;
 
-    public ReceivedData(Object data, InetAddress client, int port) {
-        this.data = data;
+    public ReceivedData(Object request, InetAddress client, int port) {
+        this.request = request;
         this.client = client;
         this.port = port;
     }
 
-    public Object getData() {
-        return data;
+    public Object getRequest() {
+        return request;
     }
 
     public InetAddress getClient() {

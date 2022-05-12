@@ -34,14 +34,12 @@ public class Receiver {
     public void start(ExecutorService requestReadingPool, ExecutorService requestProcessingPool,
                       ExecutorService responseSendingPool) throws ExecutionException, InterruptedException {
         while (true) {
-            Future<ReceivedData> receivedDataFuture = requestReadingPool.submit(this::receive);
-            Object request = receivedDataFuture.get().getData();
-            InetAddress client = receivedDataFuture.get().getClient();
-            int port = receivedDataFuture.get().getPort();
-            Future<Object> responseFuture = requestProcessingPool.submit(() -> processRequest(request));
-            Object response = responseFuture.get();
-            Future<Boolean> isDone = responseSendingPool.submit(() -> sendResponse(response, client, port));
-            isDone.get();
+            ReceivedData receivedData = requestReadingPool.submit(this::receive).get();
+            Object request = receivedData.getRequest();
+            InetAddress client = receivedData.getClient();
+            int port = receivedData.getPort();
+            Object response = requestProcessingPool.submit(() -> processRequest(request)).get();
+            responseSendingPool.submit(() -> sendResponse(response, client, port)).get();
         }
     }
 

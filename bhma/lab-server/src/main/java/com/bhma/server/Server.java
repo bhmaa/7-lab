@@ -48,39 +48,39 @@ public final class Server {
 
     public static void main(String[] args) {
         LOGGER.trace("the server is running");
-        if (args.length == NUMBER_OF_ARGUMENTS) {
-            try {
-                final InetSocketAddress address = Checker.checkAddress(args[INDEX_HOST], args[INDEX_PORT]);
-                LOGGER.info(() -> "set " + address + " address");
-                final String dataBaseUrl = "jdbc:postgresql://" + args[INDEX_DB_HOSTNAME] + ":" + args[INDEX_DB_PORT]
-                        + "/" + args[INDEX_DB_NAME];
-                final String dataBaseUsername = args[INDEX_DB_USERNAME];
-                final String dataBasePassword = args[INDEX_DB_PASSWORD];
-                try (Connection connection = DriverManager.getConnection(dataBaseUrl, dataBaseUsername, dataBasePassword);
-                     DatagramSocket server = new DatagramSocket(address)) {
-                    LOGGER.info(() -> "connected to the database " + dataBaseUrl);
-                    LOGGER.info("opened datagram socket");
-                    SQLDataManager sqlDataManager = new SQLDataManager(connection, DATA_TABLE_NAME, USER_TABLE_NAME, LOGGER);
-                    SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
-                    SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
-                    CollectionManager collectionManager = new SQLCollectionManager(sqlDataManager.initCollection(), sqlDataManager);
-                    CommandManager commandManager = new CommandManager(collectionManager, LOGGER);
-                    Executor executor = new Executor(commandManager);
-                    UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
-                    Receiver receiver = new Receiver(server, BUFFER_SIZE, LOGGER, executor, usersHandler);
-                    receiver.start(REQUEST_READING_POOL, REQUEST_PROCESSING_POOL, RESPONSE_SENDING_POOL);
-                } catch (IOException | SQLException | ExecutionException | InterruptedException e) {
-                    LOGGER.error(e);
-                }
-            } catch (IllegalAddressException e) {
-                LOGGER.error(e.getMessage());
-            } finally {
-                REQUEST_READING_POOL.shutdown();
-                REQUEST_PROCESSING_POOL.shutdown();
-                RESPONSE_SENDING_POOL.shutdown();
+        if (args.length != NUMBER_OF_ARGUMENTS) {
+            LOGGER.error("command line arguments must indicate host name, port, database host name, port and name,"
+                    + " username and password in this order");
+            return;
+        }
+        try {
+            final InetSocketAddress address = Checker.checkAddress(args[INDEX_HOST], args[INDEX_PORT]);
+            final String dataBaseUrl = "jdbc:postgresql://" + args[INDEX_DB_HOSTNAME] + ":" + args[INDEX_DB_PORT]
+                    + "/" + args[INDEX_DB_NAME];
+            final String dataBaseUsername = args[INDEX_DB_USERNAME];
+            final String dataBasePassword = args[INDEX_DB_PASSWORD];
+            try (Connection connection = DriverManager.getConnection(dataBaseUrl, dataBaseUsername, dataBasePassword);
+                 DatagramSocket server = new DatagramSocket(address)) {
+                LOGGER.info(() -> "connected to the database " + dataBaseUrl);
+                LOGGER.info(() -> "opened datagram socket on the address " + address);
+                SQLDataManager sqlDataManager = new SQLDataManager(connection, DATA_TABLE_NAME, USER_TABLE_NAME, LOGGER);
+                SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
+                SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
+                CollectionManager collectionManager = new SQLCollectionManager(sqlDataManager.initCollection(), sqlDataManager);
+                CommandManager commandManager = new CommandManager(collectionManager, LOGGER);
+                Executor executor = new Executor(commandManager);
+                UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
+                Receiver receiver = new Receiver(server, BUFFER_SIZE, LOGGER, executor, usersHandler);
+                receiver.start(REQUEST_READING_POOL, REQUEST_PROCESSING_POOL, RESPONSE_SENDING_POOL);
+            } catch (IOException | SQLException | ExecutionException | InterruptedException e) {
+                LOGGER.error(e);
             }
-        } else {
-            LOGGER.error("command line arguments must indicate host name, port, database host name, port and name, username and password");
+        } catch (IllegalAddressException e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            REQUEST_READING_POOL.shutdown();
+            REQUEST_PROCESSING_POOL.shutdown();
+            RESPONSE_SENDING_POOL.shutdown();
         }
         LOGGER.trace("the server is shutting down");
     }
