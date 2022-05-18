@@ -9,7 +9,8 @@ import java.net.InetSocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
+import java.util.Locale;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +39,8 @@ public final class Server {
     private static final int INDEX_DB_PASSWORD = 6;
     private static final String USER_TABLE_NAME = "spacemarinesusers";
     private static final String DATA_TABLE_NAME = "spacemarines";
-    private static final ExecutorService REQUEST_READING_POOL = Executors.newFixedThreadPool(1);
+    private static final Scanner SCANNER = new Scanner(System.in);
+    private static final ExecutorService REQUEST_READING_POOL = Executors.newFixedThreadPool(100);
     private static final ExecutorService REQUEST_PROCESSING_POOL = Executors.newCachedThreadPool();
     private static final ExecutorService RESPONSE_SENDING_POOL = Executors.newCachedThreadPool();
 
@@ -49,14 +51,12 @@ public final class Server {
     public static void main(String[] args) {
         LOGGER.trace("the server is running");
         if (args.length != NUMBER_OF_ARGUMENTS) {
-            LOGGER.error("command line arguments must indicate host name, port, database host name, port and name,"
-                    + " username and password in this order");
+            LOGGER.error("command line arguments must indicate host name, port, database host name, port and name, username and password in this order");
             return;
         }
         try {
             final InetSocketAddress address = Checker.checkAddress(args[INDEX_HOST], args[INDEX_PORT]);
-            final String dataBaseUrl = "jdbc:postgresql://" + args[INDEX_DB_HOSTNAME] + ":" + args[INDEX_DB_PORT]
-                    + "/" + args[INDEX_DB_NAME];
+            final String dataBaseUrl = "jdbc:postgresql://" + args[INDEX_DB_HOSTNAME] + ":" + args[INDEX_DB_PORT] + "/" + args[INDEX_DB_NAME];
             final String dataBaseUsername = args[INDEX_DB_USERNAME];
             final String dataBasePassword = args[INDEX_DB_PASSWORD];
             try (Connection connection = DriverManager.getConnection(dataBaseUrl, dataBaseUsername, dataBasePassword);
@@ -72,16 +72,32 @@ public final class Server {
                 UsersHandler usersHandler = new UsersHandler(sqlUserManager, commandManager.getRequirements(), LOGGER);
                 Receiver receiver = new Receiver(server, BUFFER_SIZE, LOGGER, executor, usersHandler);
                 receiver.start(REQUEST_READING_POOL, REQUEST_PROCESSING_POOL, RESPONSE_SENDING_POOL);
-            } catch (IOException | SQLException | ExecutionException | InterruptedException e) {
+                while (true) {
+                    if (exitFromConsole()) {
+                        REQUEST_READING_POOL.shutdown();
+                        REQUEST_PROCESSING_POOL.shutdown();
+                        RESPONSE_SENDING_POOL.shutdown();
+                        break;
+                    }
+                }
+            } catch (IOException | SQLException e) {
                 LOGGER.error(e);
             }
         } catch (IllegalAddressException e) {
             LOGGER.error(e.getMessage());
-        } finally {
-            REQUEST_READING_POOL.shutdown();
-            REQUEST_PROCESSING_POOL.shutdown();
-            RESPONSE_SENDING_POOL.shutdown();
         }
         LOGGER.trace("the server is shutting down");
+    }
+
+    private static boolean exitFromConsole() {
+        if (!SCANNER.hasNext()) {
+            return false;
+        }
+        String command = SCANNER.nextLine().toLowerCase(Locale.ROOT);
+        if ("exit".equals(command)) {
+            return true;
+        }
+        System.out.println("unknown command");
+        return false;
     }
 }

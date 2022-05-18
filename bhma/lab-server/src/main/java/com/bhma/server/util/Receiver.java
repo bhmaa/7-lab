@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 public class Receiver {
@@ -31,29 +30,19 @@ public class Receiver {
     }
 
     public void start(ExecutorService requestReadingPool, ExecutorService requestProcessingPool,
-                      ExecutorService responseSendingPool) throws ExecutionException, InterruptedException {
-        while (true) {
-            requestReadingPool.submit(() -> {
+                      ExecutorService responseSendingPool) {
+        requestReadingPool.submit(() -> {
+            while (!server.isClosed()) {
                 ReceivedData receivedData = receive();
                 Object request = receivedData.getRequest();
                 InetAddress client = receivedData.getClient();
                 int port = receivedData.getPort();
-                try {
-                    requestProcessingPool.submit(() -> {
-                        Object response = processRequest(request);
-                        try {
-                            responseSendingPool.submit(() -> sendResponse(response, client, port)).get();
-                            responseSendingPool.shutdown();
-                        } catch (InterruptedException | ExecutionException e) {
-                            logger.error(e);
-                        }
-                    }).get();
-                    requestProcessingPool.shutdown();
-                } catch (InterruptedException | ExecutionException e) {
-                    logger.error(e);
-                }
-            });
-        }
+                requestProcessingPool.submit(() -> {
+                    Object response = processRequest(request);
+                    responseSendingPool.submit(() -> sendResponse(response, client, port));
+                });
+            }
+        });
     }
 
     private Object processRequest(Object received) {
