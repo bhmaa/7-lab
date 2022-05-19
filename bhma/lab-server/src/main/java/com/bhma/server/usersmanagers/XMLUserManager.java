@@ -4,6 +4,7 @@ import com.bhma.server.util.User;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement(name = "users")
@@ -14,7 +15,7 @@ public class XMLUserManager extends UserManager {
 
     public XMLUserManager(List<User> users, String filename) {
         super(users);
-        this.users = users;
+        this.users = Collections.synchronizedList(users);
         this.filename = filename;
     }
 

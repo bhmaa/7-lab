@@ -5,6 +5,7 @@ import com.bhma.server.util.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +17,7 @@ public class SQLUserManager extends UserManager {
 
     public SQLUserManager(List<User> users, Connection connection, String usersTableName, Logger logger) {
         super(users);
-        this.users = users;
+        this.users = Collections.synchronizedList(users);
         this.connection = connection;
         this.usersTableName = usersTableName;
         this.logger = logger;

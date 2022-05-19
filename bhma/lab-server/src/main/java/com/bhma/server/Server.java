@@ -40,7 +40,7 @@ public final class Server {
     private static final String USER_TABLE_NAME = "spacemarinesusers";
     private static final String DATA_TABLE_NAME = "spacemarines";
     private static final Scanner SCANNER = new Scanner(System.in);
-    private static final ExecutorService REQUEST_READING_POOL = Executors.newFixedThreadPool(100);
+    private static final ExecutorService REQUEST_READING_POOL = Executors.newFixedThreadPool(10);
     private static final ExecutorService REQUEST_PROCESSING_POOL = Executors.newCachedThreadPool();
     private static final ExecutorService RESPONSE_SENDING_POOL = Executors.newCachedThreadPool();
 
