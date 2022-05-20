@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public final class XMLUserTableCreator {
     private XMLUserTableCreator() {
@@ -39,7 +40,7 @@ public final class XMLUserTableCreator {
             xmlUserManager = convertToJavaObject(file);
             xmlUserManager.setFilename(filePath);
         } else {
-            xmlUserManager = new XMLUserManager(new ArrayList<>(), filePath);
+            xmlUserManager = new XMLUserManager(new ReentrantLock(), new ArrayList<>(), filePath);
         }
         if (file.exists()) {
             logger.info(() -> "users was successfully loaded from the file " + filePath);

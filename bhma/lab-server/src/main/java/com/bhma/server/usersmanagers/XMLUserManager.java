@@ -4,18 +4,20 @@ import com.bhma.server.util.User;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 @XmlRootElement(name = "users")
 public class XMLUserManager extends UserManager {
+    private final Lock lock;
     @XmlElement(name = "user")
     private List<User> users;
     private String filename;
 
-    public XMLUserManager(List<User> users, String filename) {
-        super(users);
-        this.users = Collections.synchronizedList(users);
+    public XMLUserManager(Lock lock, List<User> users, String filename) {
+        super(users, lock);
+        this.lock = lock;
+        this.users = users;
         this.filename = filename;
     }
 
@@ -37,6 +39,11 @@ public class XMLUserManager extends UserManager {
 
     @Override
     public void registerUser(User user) {
-        users.add(user);
+        try {
+            lock.lock();
+            users.add(user);
+        } finally {
+            lock.unlock();
+        }
     }
 }

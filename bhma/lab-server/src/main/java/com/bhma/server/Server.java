@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.server.collectionmanagers.SQLCollectionManager;
@@ -65,7 +66,7 @@ public final class Server {
                 LOGGER.info(() -> "opened datagram socket on the address " + address);
                 SQLDataManager sqlDataManager = new SQLDataManager(connection, DATA_TABLE_NAME, USER_TABLE_NAME, LOGGER);
                 SQLUserTableCreator sqlUserTableCreator = new SQLUserTableCreator(connection, USER_TABLE_NAME, LOGGER);
-                SQLUserManager sqlUserManager = new SQLUserManager(sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
+                SQLUserManager sqlUserManager = new SQLUserManager(new ReentrantLock(), sqlUserTableCreator.init(), connection, USER_TABLE_NAME, LOGGER);
                 CollectionManager collectionManager = new SQLCollectionManager(sqlDataManager.initCollection(), sqlDataManager);
                 CommandManager commandManager = new CommandManager(collectionManager, LOGGER);
                 Executor executor = new Executor(commandManager);

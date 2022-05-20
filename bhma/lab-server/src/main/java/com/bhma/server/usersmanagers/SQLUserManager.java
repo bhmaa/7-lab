@@ -5,19 +5,23 @@ import com.bhma.server.util.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+
 import org.apache.logging.log4j.Logger;
 
 public class SQLUserManager extends UserManager {
+    private final Lock lock;
     private final List<User> users;
     private final Connection connection;
     private final String usersTableName;
     private final Logger logger;
 
-    public SQLUserManager(List<User> users, Connection connection, String usersTableName, Logger logger) {
-        super(users);
-        this.users = Collections.synchronizedList(users);
+    public SQLUserManager(Lock lock, List<User> users, Connection connection, String usersTableName,
+                          Logger logger) {
+        super(users, lock);
+        this.lock = lock;
+        this.users = users;
         this.connection = connection;
         this.usersTableName = usersTableName;
         this.logger = logger;
@@ -31,9 +35,12 @@ public class SQLUserManager extends UserManager {
             statement.setString(1, user.getUsername());
             statement.setString(2, PasswordEncoder.encode(user.getPassword()));
             statement.execute();
+            lock.lock();
             users.add(user);
         } catch (SQLException e) {
             logger.error(e);
+        } finally {
+            lock.unlock();
         }
     }
 }
