@@ -7,12 +7,12 @@ import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
 
-public class RemoveGreaterKeyCommand extends Command {
+public class RemoveGreaterCommand extends Command {
     private final CollectionManager collectionManager;
 
-    public RemoveGreaterKeyCommand(CollectionManager collectionManager) {
-        super("remove_greater_key", "удалить из коллекции все элементы, превышающие заданный",
-                CommandRequirement.NONE);
+    public RemoveGreaterCommand(CollectionManager collectionManager) {
+        super("remove_greater", "удалить из коллекции все элементы, превышающие заданный",
+                CommandRequirement.SPACE_MARINE);
         this.collectionManager = collectionManager;
     }
 
