@@ -31,10 +31,15 @@ public class InsertCommand extends Command {
         if (argument.isEmpty() || spaceMarine == null || spaceMarine.getClass() != SpaceMarine.class) {
             throw new InvalidCommandArguments();
         }
-        if (collectionManager.getCollection().containsKey(Long.valueOf(argument))) {
-            throw new IllegalKeyException("Element with this key is already exists");
+        try {
+            long key = Long.parseLong(argument);
+            if (collectionManager.getCollection().containsKey(key)) {
+                throw new IllegalKeyException("Element with this key is already exists");
+            }
+            collectionManager.addToCollection(key, (SpaceMarine) spaceMarine);
+            return new ServerResponse(ExecuteCode.SUCCESS);
+        } catch (NumberFormatException e) {
+            return new ServerResponse("the argument must be a long number", ExecuteCode.ERROR);
         }
-        collectionManager.addToCollection(Long.valueOf(argument), (SpaceMarine) spaceMarine);
-        return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }

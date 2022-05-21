@@ -32,17 +32,21 @@ public class ReplaceIfLowerCommand extends Command {
         if (argument.isEmpty() || spaceMarine == null || spaceMarine.getClass() != SpaceMarine.class) {
             throw new InvalidCommandArguments();
         }
-        long key = Long.parseLong(argument);
-        if (!collectionManager.containsKey(key)) {
-            throw new IllegalKeyException("There's no element with that key");
+        try {
+            long key = Long.parseLong(argument);
+            if (!collectionManager.containsKey(key)) {
+                throw new IllegalKeyException("There's no element with that key");
+            }
+            if (!collectionManager.getByKey(key).getOwnerUsername().equals(username)) {
+                throw new IllegalKeyException("Object with that key belong to the another user");
+            }
+            SpaceMarine oldSpaceMarine = collectionManager.getByKey(key);
+            if (oldSpaceMarine.compareTo((SpaceMarine) spaceMarine) < 0) {
+                collectionManager.addToCollection(key, (SpaceMarine) spaceMarine);
+            }
+            return new ServerResponse(ExecuteCode.SUCCESS);
+        } catch (NumberFormatException e) {
+            return new ServerResponse("the argument must be a long number", ExecuteCode.ERROR);
         }
-        if (!collectionManager.getByKey(key).getOwnerUsername().equals(username)) {
-            throw new IllegalKeyException("Object with that key belong to the another user");
-        }
-        SpaceMarine oldSpaceMarine = collectionManager.getByKey(key);
-        if (oldSpaceMarine.compareTo((SpaceMarine) spaceMarine) < 0) {
-            collectionManager.addToCollection(key, (SpaceMarine) spaceMarine);
-        }
-        return new ServerResponse(ExecuteCode.SUCCESS);
     }
 }
