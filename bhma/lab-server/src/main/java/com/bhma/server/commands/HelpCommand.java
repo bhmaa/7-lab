@@ -1,7 +1,7 @@
 package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import java.util.HashMap;
@@ -14,7 +14,8 @@ public class HelpCommand extends Command {
     private final HashMap<String, Command> commands;
 
     public HelpCommand(HashMap<String, Command> commands) {
-        super("help", "вывести справку по доступным командам", CommandRequirement.NONE);
+        super("help", "вывести справку по доступным командам", CommandObjectRequirement.NONE,
+                false);
         this.commands = commands;
     }
 

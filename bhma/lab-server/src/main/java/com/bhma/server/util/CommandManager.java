@@ -1,7 +1,7 @@
 package com.bhma.server.util;
 
-import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.common.util.CommandRequirement;
+import com.bhma.server.collectionmanagers.CollectionManager;
 import com.bhma.server.commands.AverageOfHealthCommand;
 import com.bhma.server.commands.ClearCommand;
 import com.bhma.server.commands.Command;
@@ -62,7 +62,7 @@ public class CommandManager {
         HelpCommand helpCommand = new HelpCommand(commands);
         commands.put(helpCommand.getName(), helpCommand);
 
-        commands.forEach((k, v) -> requirements.put(k, v.getRequirement()));
+        commands.forEach((k, v) -> requirements.put(k, new CommandRequirement(v.getObjectRequirement(), v.isCommandNeedsStringArgument())));
     }
 
     public HashMap<String, Command> getCommands() {

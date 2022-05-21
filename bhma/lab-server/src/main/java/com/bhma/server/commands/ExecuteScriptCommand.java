@@ -1,7 +1,7 @@
 package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 
@@ -11,7 +11,8 @@ import com.bhma.common.util.ServerResponse;
 public class ExecuteScriptCommand extends Command {
 
     public ExecuteScriptCommand() {
-        super("execute_script", "считать и исполнить скрипт из указанного файла", CommandRequirement.NONE);
+        super("execute_script", "считать и исполнить скрипт из указанного файла",
+                CommandObjectRequirement.NONE, true);
     }
 
     /**

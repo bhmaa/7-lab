@@ -2,7 +2,7 @@ package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.IllegalKeyException;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ServerResponse;
 
 /**
@@ -11,12 +11,15 @@ import com.bhma.common.util.ServerResponse;
 public abstract class Command {
     private final String name;
     private final String description;
-    private final CommandRequirement requirement;
+    private final CommandObjectRequirement objectRequirement;
+    private final boolean commandNeedsStringArgument;
 
-    public Command(String name, String description, CommandRequirement requirement) {
+    public Command(String name, String description, CommandObjectRequirement objectRequirement,
+                   boolean commandNeedsStringArgument) {
         this.name = name;
         this.description = description;
-        this.requirement = requirement;
+        this.objectRequirement = objectRequirement;
+        this.commandNeedsStringArgument = commandNeedsStringArgument;
     }
 
     public abstract ServerResponse execute(String argument, Object object, String username) throws InvalidCommandArguments,
@@ -30,7 +33,11 @@ public abstract class Command {
         return description;
     }
 
-    public CommandRequirement getRequirement() {
-        return requirement;
+    public CommandObjectRequirement getObjectRequirement() {
+        return objectRequirement;
+    }
+
+    public boolean isCommandNeedsStringArgument() {
+        return commandNeedsStringArgument;
     }
 }

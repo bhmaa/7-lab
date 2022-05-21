@@ -1,7 +1,7 @@
 package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +13,8 @@ public class ExitCommand extends Command {
     private final Logger logger;
 
     public ExitCommand(Logger logger) {
-        super("exit", "завершить программу (без сохранения в файл)", CommandRequirement.NONE);
+        super("exit", "завершить программу (без сохранения в файл)", CommandObjectRequirement.NONE,
+                false);
         this.logger = logger;
     }
 

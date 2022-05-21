@@ -3,7 +3,7 @@ package com.bhma.server.commands;
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.exceptions.IllegalKeyException;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -16,7 +16,7 @@ public class UpdateCommand extends Command {
 
     public UpdateCommand(CollectionManager collectionManager) {
         super("update", "обновить значение элемента коллекции, id которого равен заданному",
-                CommandRequirement.SPACE_MARINE);
+                CommandObjectRequirement.SPACE_MARINE, true);
         this.collectionManager = collectionManager;
     }
 

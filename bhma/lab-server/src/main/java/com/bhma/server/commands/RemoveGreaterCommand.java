@@ -2,7 +2,7 @@ package com.bhma.server.commands;
 
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -12,7 +12,7 @@ public class RemoveGreaterCommand extends Command {
 
     public RemoveGreaterCommand(CollectionManager collectionManager) {
         super("remove_greater", "удалить из коллекции все элементы, превышающие заданный",
-                CommandRequirement.SPACE_MARINE);
+                CommandObjectRequirement.SPACE_MARINE, false);
         this.collectionManager = collectionManager;
     }
 

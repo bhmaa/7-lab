@@ -1,7 +1,7 @@
 package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -13,7 +13,7 @@ public class ClearCommand extends Command {
     private final CollectionManager collectionManager;
 
     public ClearCommand(CollectionManager collectionManager) {
-        super("clear", "очистить коллекцию", CommandRequirement.NONE);
+        super("clear", "очистить коллекцию", CommandObjectRequirement.NONE, false);
         this.collectionManager = collectionManager;
     }
 

@@ -2,7 +2,7 @@ package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.IllegalKeyException;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -14,7 +14,8 @@ public class RemoveKeyCommand extends Command {
     private final CollectionManager collectionManager;
 
     public RemoveKeyCommand(CollectionManager collectionManager) {
-        super("remove_key", "удалить элемент из коллекции по его ключу", CommandRequirement.NONE);
+        super("remove_key", "удалить элемент из коллекции по его ключу", CommandObjectRequirement.NONE,
+                true);
         this.collectionManager = collectionManager;
     }
 

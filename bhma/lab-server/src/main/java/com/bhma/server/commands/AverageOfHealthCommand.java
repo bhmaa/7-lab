@@ -1,7 +1,7 @@
 package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -14,7 +14,7 @@ public class AverageOfHealthCommand extends Command {
 
     public AverageOfHealthCommand(CollectionManager collectionManager) {
         super("average_of_health", "вывести среднее значение поля health для всех элементов коллекции",
-                CommandRequirement.NONE);
+                CommandObjectRequirement.NONE, false);
         this.collectionManager = collectionManager;
     }
 

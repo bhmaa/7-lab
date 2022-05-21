@@ -2,7 +2,7 @@ package com.bhma.server.commands;
 
 import com.bhma.common.data.Weapon;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -15,7 +15,7 @@ public class RemoveAnyByWeaponTypeCommand extends Command {
 
     public RemoveAnyByWeaponTypeCommand(CollectionManager collectionManager) {
         super("remove_any_by_weapon_type", "удалить из коллекции один элемент, значение поля weaponType"
-                + " которого эквивалентно заданному", CommandRequirement.WEAPON);
+                + " которого эквивалентно заданному", CommandObjectRequirement.WEAPON, false);
         this.collectionManager = collectionManager;
     }
 

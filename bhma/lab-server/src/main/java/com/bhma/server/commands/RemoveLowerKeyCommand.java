@@ -1,7 +1,7 @@
 package com.bhma.server.commands;
 
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -14,7 +14,7 @@ public class RemoveLowerKeyCommand extends Command {
 
     public RemoveLowerKeyCommand(CollectionManager collectionManager) {
         super("remove_lower_key", "удалить из коллекции все элементы, ключ которых меньше, чем заданный",
-                CommandRequirement.NONE);
+                CommandObjectRequirement.NONE, true);
         this.collectionManager = collectionManager;
     }
 

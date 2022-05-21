@@ -4,6 +4,7 @@ import com.bhma.client.exceptions.InvalidInputException;
 import com.bhma.client.exceptions.NoConnectionException;
 import com.bhma.client.exceptions.ScriptException;
 import com.bhma.common.util.ClientRequest;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.CommandRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.PullingResponse;
@@ -46,7 +47,7 @@ public class ConsoleManager {
                     argument = input.replaceFirst(inputCommand + " ", "");
                 }
                 try {
-                    ClientRequest request = new ClientRequest(inputCommand, argument, getObjectArgument(inputCommand),
+                    ClientRequest request = new ClientRequest(inputCommand, argument, getObjectArgument(inputCommand, argument),
                             username, password);
                     ServerResponse response = (ServerResponse) requester.send(request);
                     executeFlag = processServerResponse(response);
@@ -61,22 +62,24 @@ public class ConsoleManager {
         }
     }
 
-    private Object getObjectArgument(String commandName) throws ScriptException, InvalidInputException {
+    private Object getObjectArgument(String commandName, String argument) throws ScriptException, InvalidInputException {
         Object object = null;
         if (commands.containsKey(commandName)) {
-            CommandRequirement requirement = commands.get(commandName);
-            switch (requirement) {
-                case CHAPTER:
-                    object = spaceMarineFiller.fillChapter();
-                    break;
-                case SPACE_MARINE:
-                    object = spaceMarineFiller.fillSpaceMarine(username);
-                    break;
-                case WEAPON:
-                    object = spaceMarineFiller.fillWeaponType();
-                    break;
-                default:
-                    break;
+            if (commands.get(commandName).isCommandNeedsStringArgument() == !argument.isEmpty()) {
+                CommandObjectRequirement requirement = commands.get(commandName).getCommandObjectRequirement();
+                switch (requirement) {
+                    case CHAPTER:
+                        object = spaceMarineFiller.fillChapter();
+                        break;
+                    case SPACE_MARINE:
+                        object = spaceMarineFiller.fillSpaceMarine(username);
+                        break;
+                    case WEAPON:
+                        object = spaceMarineFiller.fillWeaponType();
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         return object;
@@ -108,6 +111,10 @@ public class ConsoleManager {
                 break;
             case SERVER_ERROR:
                 outputManager.printlnImportantColorMessage(executeCode.getMessage(), Color.RED);
+                if (serverResponse.getMessage() != null) {
+                    outputManager.printlnImportantColorMessage("cause:", Color.RED);
+                    outputManager.printlnImportantColorMessage(serverResponse.getMessage(), Color.RED);
+                }
                 break;
             case EXIT:
                 outputManager.printlnImportantColorMessage(executeCode.getMessage(), Color.RED);

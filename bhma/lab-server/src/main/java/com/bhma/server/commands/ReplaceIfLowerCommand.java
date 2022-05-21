@@ -3,7 +3,7 @@ package com.bhma.server.commands;
 import com.bhma.common.data.SpaceMarine;
 import com.bhma.common.exceptions.IllegalKeyException;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -16,7 +16,7 @@ public class ReplaceIfLowerCommand extends Command {
 
     public ReplaceIfLowerCommand(CollectionManager collectionManager) {
         super("replace_if_lower", "заменить значение по ключу, если новое значение меньше старого",
-                CommandRequirement.SPACE_MARINE);
+                CommandObjectRequirement.SPACE_MARINE, true);
         this.collectionManager = collectionManager;
     }
 

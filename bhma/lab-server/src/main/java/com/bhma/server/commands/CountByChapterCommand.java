@@ -2,7 +2,7 @@ package com.bhma.server.commands;
 
 import com.bhma.common.data.Chapter;
 import com.bhma.common.exceptions.InvalidCommandArguments;
-import com.bhma.common.util.CommandRequirement;
+import com.bhma.common.util.CommandObjectRequirement;
 import com.bhma.common.util.ExecuteCode;
 import com.bhma.common.util.ServerResponse;
 import com.bhma.server.collectionmanagers.CollectionManager;
@@ -14,7 +14,8 @@ public class CountByChapterCommand extends Command {
     private final CollectionManager collectionManager;
 
     public CountByChapterCommand(CollectionManager collectionManager) {
-        super("count_by_chapter", "вывести количество элементов, значение поля chapter которых равно заданному", CommandRequirement.CHAPTER);
+        super("count_by_chapter", "вывести количество элементов, значение поля chapter которых равно заданному",
+                CommandObjectRequirement.CHAPTER, false);
         this.collectionManager = collectionManager;
     }
 
