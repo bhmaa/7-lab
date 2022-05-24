@@ -1,6 +1,5 @@
 package com.bhma.server.usersmanagers;
 
-import com.bhma.server.util.PasswordEncoder;
 import com.bhma.server.util.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +32,7 @@ public class SQLUserManager extends UserManager {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO " + usersTableName
                     + "(username,password) VALUES (?,?)");
             statement.setString(1, user.getUsername());
-            statement.setString(2, PasswordEncoder.encode(user.getPassword()));
+            statement.setString(2, user.getPassword());
             statement.execute();
             lock.lock();
             users.add(user);
